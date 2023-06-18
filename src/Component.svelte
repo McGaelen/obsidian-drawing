@@ -3,6 +3,7 @@
   import { expoOut } from "svelte/easing"
   import Log from "./Log.svelte"
   import {log} from './stores/log.store'
+  import { writable } from 'svelte/store'
 
   /** @type {Path2D} */
   const thing = new Path2D()
@@ -12,11 +13,11 @@
   let currentPath
 
   let scale = tweened(1.0, { easing: expoOut })
+  let origin = writable([0, 0])
 
   let showLog = false
 
   // TODO: it appears that either `offset` coords or `movement` coords (or both) do not change their scale when the svg's scale changes.
-  // TODO: when using pen on iPad, it scrolls instead of continuing to fire PointerEvents.
   // TODO: drawings don't appear until another mouse event happens.
 
   /** @param event {PointerEvent}*/
@@ -33,7 +34,6 @@
    * @param event {PointerEvent}
    */
   function onPointerMove(event) {
-    //event.preventDefault()
     if (event.pointerType === "pen" || event.pointerType === "mouse") {
       event.preventDefault()
       if (currentPath) {
@@ -57,10 +57,12 @@
   function onTouchMove(event) {
     // on iOS, inputs from apple pencil are turned into touch events for some reason.
     // We don't want any pen inputs firing as touch events, so we suppress it here.
-    event.touches.some(touch => log(touch))
-    if (event.touches.some(touch => touch.touchType === "stylus")) {
-      log("stylus detected")
-      event.preventDefault()
+    // Also... `event.touches` is not a standard array for some reason???? So, have to do for loop instead of `some()`.
+    for (const touch of event.touches) {
+      if (touch.touchType === 'stylus') {
+        log('stylus detected')
+        event.preventDefault()
+      }
     }
 
     switch (event.touches.length) {
@@ -70,16 +72,24 @@
           y1 = event.touches[0].screenY,
           x2 = event.touches[1].screenX,
           y2 = event.touches[1].screenY
+
         const distance = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+
+        origin.set([
+          ((x2 - x1) / 2) + 1,
+          ((y2 - y1) / 2) + 1
+        ])
+
         if (previousDistance) {
           change = distance - previousDistance
-          $scale = $scale < 0 ? 0 : $scale + change / window.devicePixelRatio
+          $scale = $scale < 0 ? 0 : $scale + change * 0.01
         }
         previousDistance = distance
         return
       default:
     }
   }
+  $: log($scale)
 </script>
 
 <nav>
@@ -96,7 +106,7 @@
   on:pointerup={onPointerUp}
   width="1000"
   height="1000"
-  style="transform: scale({$scale});"
+  style="transform: scale({$scale}); transform-origin: {$origin[0]}px {$origin[1]}px"
   viewBox="0 0 1000 1000"
   stroke-width="2"
   stroke="#FFFFFF"
