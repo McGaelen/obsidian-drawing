@@ -1,16 +1,15 @@
 <script>
-  import { tweened } from "svelte/motion"
-  import { expoOut } from "svelte/easing"
-  import Log from "./Log.svelte"
-  import {log} from './stores/log.store'
+  import { tweened } from 'svelte/motion'
+  import { expoOut } from 'svelte/easing'
+  import Log from './Log.svelte'
+  import { log } from './stores/log.store'
   import { writable } from 'svelte/store'
+  import Path from './Path.svelte'
 
-  /** @type {Path2D} */
-  const thing = new Path2D()
-  /** @type {{d: string}[]} */
-  let paths = []
-  /** @type {{d: string} | null} */
-  let currentPath
+  /** @type SVGElement */
+  let svg
+  /** @type {Path | null} */
+  let currentPath = null
 
   let scale = tweened(1.0, { easing: expoOut })
   let origin = writable([0, 0])
@@ -18,14 +17,18 @@
   let showLog = false
 
   // TODO: it appears that either `offset` coords or `movement` coords (or both) do not change their scale when the svg's scale changes.
-  // TODO: drawings don't appear until another mouse event happens.
 
   /** @param event {PointerEvent}*/
   function onPointerDown(event) {
-    if (event.pointerType === "pen" || event.pointerType === "mouse") {
+    if (event.pointerType === 'pen' || event.pointerType === 'mouse') {
       event.preventDefault()
-      currentPath = { d: `M${event.offsetX},${event.offsetY}` }
-      paths = [...paths, currentPath]
+      currentPath = new Path({
+          target: svg,
+          props: {
+            origin: { x: event.offsetX, y: event.offsetY },
+          },
+        },
+      )
     }
   }
 
@@ -34,18 +37,19 @@
    * @param event {PointerEvent}
    */
   function onPointerMove(event) {
-    if (event.pointerType === "pen" || event.pointerType === "mouse") {
+    if (event.pointerType === 'pen' || event.pointerType === 'mouse') {
       event.preventDefault()
+
       if (currentPath) {
         log(event)
-        currentPath.d += `l${event.movementX},${event.movementY}`
+        currentPath.lineTo(event.offsetX, event.offsetY)
       }
     }
   }
 
   /** @param event {PointerEvent}*/
   function onPointerUp(event) {
-    if (event.pointerType === "pen" || event.pointerType === "mouse") {
+    if (event.pointerType === 'pen' || event.pointerType === 'mouse') {
       currentPath = null
     }
   }
@@ -77,49 +81,45 @@
 
         origin.set([
           ((x2 - x1) / 2) + 1,
-          ((y2 - y1) / 2) + 1
+          ((y2 - y1) / 2) + 1,
         ])
 
         if (previousDistance) {
           change = distance - previousDistance
-          $scale = $scale < 0 ? 0 : $scale + change * 0.01
+          $scale = $scale < 0.5 ? 0.5 : $scale + change * 0.01
         }
         previousDistance = distance
         return
       default:
     }
   }
-  $: log($scale)
 </script>
 
 <nav>
   <h1>My Drawing App!</h1>
-  <input type="range" min="0" max="2" step="0.000000001" bind:value={$scale} />
+  <input type='range' min='0' max='2' step='0.000000001' bind:value={$scale} />
   <button on:click={() => showLog = !showLog}>Show Log</button>
 </nav>
 
 <svg
+  bind:this={svg}
   on:touchmove={onTouchMove}
   on:touchend={() => (previousDistance = 0)}
   on:pointermove={onPointerMove}
   on:pointerdown={onPointerDown}
   on:pointerup={onPointerUp}
-  width="1000"
-  height="1000"
-  style="transform: scale({$scale}); transform-origin: {$origin[0]}px {$origin[1]}px"
-  viewBox="0 0 1000 1000"
-  stroke-width="2"
-  stroke="#FFFFFF"
-  fill="none"
-  stroke-linecap="round"
-  stroke-linejoin="round"
->
-  {#each paths as path (path.d)}
-    <path d={path.d} />
-  {/each}
-</svg>
+  width='1000'
+  height='1000'
+  viewBox='0 0 1000 1000'
+  style='transform: scale({$scale}); transform-origin: {$origin[0]}px {$origin[1]}px'
+  stroke-width='2'
+  stroke='#FFFFFF'
+  fill='none'
+  stroke-linecap='round'
+  stroke-linejoin='round'
+/>
 
-<Log show={showLog}/>
+<Log show={showLog} />
 
 <style>
   nav {
@@ -128,6 +128,7 @@
     height: 60px;
     align-items: center;
   }
+
   svg {
     border: 1px solid red;
   }

@@ -9,7 +9,9 @@ export let log = thing => {
 
   if (typeof thing === 'object') {
     for (const prop in thing) {
-      output += `${prop}: ${thing[prop]}, `
+      if (typeof thing[prop] !== 'function') {
+        output += `${prop}: ${thing[prop]}, `
+      }
     }
   } else {
     output = thing?.toString()
