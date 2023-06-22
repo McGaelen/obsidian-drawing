@@ -16,7 +16,7 @@
 
   let showLog = false
 
-  // TODO: it appears that either `offset` coords or `movement` coords (or both) do not change their scale when the svg's scale changes.
+  // TODO: When viewBox and width/height are different, the offsetX/Y property doesn't work correctly.
 
   /** @param event {PointerEvent}*/
   function onPointerDown(event) {
