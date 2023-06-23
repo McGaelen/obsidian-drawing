@@ -33,14 +33,6 @@ const context = await esbuild.context({
             namespace: 'rust',
           }
         })
-        // build.onLoad(
-        //   { filter: /obsidian-drawing-rust/, namespace: 'rust' },
-        //   async args => {
-        //     await exec(`npm run wasm-pack`)
-        //     console.log('load args: ', args)
-        //     return {}
-        //   },
-        // )
       },
     },
     esbuildSvelte({
