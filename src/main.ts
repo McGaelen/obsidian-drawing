@@ -8,8 +8,11 @@ import {
   Plugin,
   PluginSettingTab,
   Setting,
+  TFile,
   WorkspaceLeaf,
-} from "obsidian"
+} from 'obsidian'
+import init, { greet } from 'obsidian-drawing-rust'
+import { readFile } from 'fs/promises'
 
 // Remember to rename these classes and interfaces!
 
@@ -18,15 +21,21 @@ interface MyPluginSettings {
 }
 
 const DEFAULT_SETTINGS: MyPluginSettings = {
-  mySetting: "default",
+  mySetting: 'default',
 }
 
 export default class HelloWorldPlugin extends Plugin {
   settings: MyPluginSettings
 
   async onload() {
-    await this.loadSettings()
+    // Read the wasm file and initialize it
+    const wasmBin = await readFile(
+      // @ts-expect-error
+      `${this.app.vault.adapter.basePath}/.obsidian/plugins/obsidian-drawing/pkg/obsidian_drawing_rust_bg.wasm`,
+    )
+    await init(wasmBin)
 
+    await this.loadSettings()
     // This creates an icon in the left ribbon.
     // const ribbonIconEl = this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => {
     // Called when the user clicks the icon.
@@ -37,29 +46,34 @@ export default class HelloWorldPlugin extends Plugin {
 
     // This adds a status bar item to the bottom of the app. Does not work on mobile apps.
     const statusBarItemEl = this.addStatusBarItem()
-    statusBarItemEl.setText("Status Bar Text")
+    statusBarItemEl.setText('Status Bar Text')
 
+    this.addCommand({
+      id: 'greet-from-rust',
+      name: 'Greet from Rust',
+      callback: greet,
+    })
     // This adds a simple command that can be triggered anywhere
     this.addCommand({
-      id: "open-sample-modal-simple",
-      name: "Open sample modal (simple)",
+      id: 'open-sample-modal-simple',
+      name: 'Open sample modal (simple)',
       callback: () => {
         new SampleModal(this.app).open()
       },
     })
     // This adds an editor command that can perform some operation on the current editor instance
     this.addCommand({
-      id: "sample-editor-command",
-      name: "Sample editor command",
+      id: 'sample-editor-command',
+      name: 'Sample editor command',
       editorCallback: (editor: Editor, view: MarkdownView) => {
         console.log(editor.getSelection())
-        editor.replaceSelection("Sample Editor Command")
+        editor.replaceSelection('Sample Editor Command')
       },
     })
     // This adds a complex command that can check whether the current state of the app allows execution of the command
     this.addCommand({
-      id: "open-sample-modal-complex",
-      name: "Open sample modal (complex)",
+      id: 'open-sample-modal-complex',
+      name: 'Open sample modal (complex)',
       checkCallback: (checking: boolean) => {
         // Conditions to check
         const markdownView =
@@ -82,13 +96,13 @@ export default class HelloWorldPlugin extends Plugin {
 
     // If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
     // Using this function will automatically remove the event listener when this plugin is disabled.
-    this.registerDomEvent(document, "click", (evt: MouseEvent) => {
-      console.log("click", evt)
+    this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
+      console.log('click', evt)
     })
 
     // When registering intervals, this function will automatically clear the interval when the plugin is disabled.
     this.registerInterval(
-      window.setInterval(() => console.log("setInterval"), 5 * 60 * 1000),
+      window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000),
     )
 
     // this.addRibbonIcon('dice', 'hello world', (event: MouseEvent) => {
@@ -97,7 +111,7 @@ export default class HelloWorldPlugin extends Plugin {
 
     this.registerView(VIEW_TYPE_EXAMPLE, leaf => new ExampleView(leaf))
 
-    this.addRibbonIcon("dice", "Activate view", async () => {
+    this.addRibbonIcon('dice', 'Activate view', async () => {
       this.app.workspace.detachLeavesOfType(VIEW_TYPE_EXAMPLE)
 
       await this.app.workspace
@@ -128,7 +142,7 @@ class SampleModal extends Modal {
 
   onOpen() {
     const { contentEl } = this
-    contentEl.setText("Woah!")
+    contentEl.setText('Woah!')
   }
 
   onClose() {
@@ -150,17 +164,17 @@ class SampleSettingTab extends PluginSettingTab {
 
     containerEl.empty()
 
-    containerEl.createEl("h2", { text: "Settings for my awesome plugin." })
+    containerEl.createEl('h2', { text: 'Settings for my awesome plugin.' })
 
     new Setting(containerEl)
-      .setName("Setting #1")
+      .setName('Setting #1')
       .setDesc("It's a secret")
       .addText(text =>
         text
-          .setPlaceholder("Enter your secret")
+          .setPlaceholder('Enter your secret')
           .setValue(this.plugin.settings.mySetting)
           .onChange(async value => {
-            console.log("Secret: " + value)
+            console.log('Secret: ' + value)
             this.plugin.settings.mySetting = value
             await this.plugin.saveSettings()
           }),
@@ -168,9 +182,9 @@ class SampleSettingTab extends PluginSettingTab {
   }
 }
 
-import Component from "./Component.svelte"
+import Component from './Component.svelte'
 
-export const VIEW_TYPE_EXAMPLE = "example-view"
+export const VIEW_TYPE_EXAMPLE = 'example-view'
 
 export class ExampleView extends ItemView {
   component: Component
@@ -184,7 +198,7 @@ export class ExampleView extends ItemView {
   }
 
   getDisplayText() {
-    return "Example view"
+    return 'Example view'
   }
 
   async onOpen() {
@@ -194,8 +208,8 @@ export class ExampleView extends ItemView {
         variable: 1,
       },
     })
-    this.contentEl.style.contain = "strict"
-    this.contentEl.style.padding = "0"
+    this.contentEl.style.contain = 'strict'
+    this.contentEl.style.padding = '0'
   }
 
   async onClose() {
