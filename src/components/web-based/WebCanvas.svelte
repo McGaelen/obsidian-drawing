@@ -1,22 +1,17 @@
 <script>
-  import { tweened } from 'svelte/motion'
-  import { expoOut } from 'svelte/easing'
-  import Log from './Log.svelte'
-  import { log } from './stores/log.store'
   import { writable } from 'svelte/store'
   import Path from './Path.svelte'
+  import { scale } from '../../stores/scale.store'
 
   /** @type SVGElement */
   let svg
   /** @type {Path | null} */
   let currentPath = null
-
-  let scale = tweened(1.0, { easing: expoOut })
+  /** @type {import('svelte/store').Writable<[number, number]>}*/
   let origin = writable([0, 0])
 
-  let showLog = false
-
   // TODO: When viewBox and width/height are different, the offsetX/Y property doesn't work correctly.
+  // TODO: Origin for pinch-to-zoom doesn't work correctly. It zooms the svg, but not at the center of the touch points.
 
   /** @param event {PointerEvent}*/
   function onPointerDown(event) {
@@ -41,7 +36,6 @@
       event.preventDefault()
 
       if (currentPath) {
-        log(event)
         currentPath.lineTo(event.offsetX, event.offsetY)
       }
     }
@@ -64,7 +58,6 @@
     // Also... `event.touches` is not a standard array for some reason???? So, have to do for loop instead of `some()`.
     for (const touch of event.touches) {
       if (touch.touchType === 'stylus') {
-        log('stylus detected')
         event.preventDefault()
       }
     }
@@ -95,12 +88,6 @@
   }
 </script>
 
-<nav>
-  <h1>My Drawing App!</h1>
-  <input type='range' min='0' max='2' step='0.000000001' bind:value={$scale} />
-  <button on:click={() => showLog = !showLog}>Show Log</button>
-</nav>
-
 <svg
   bind:this={svg}
   on:touchmove={onTouchMove}
@@ -119,16 +106,7 @@
   stroke-linejoin='round'
 />
 
-<Log show={showLog} />
-
 <style>
-  nav {
-    display: flex;
-    gap: 10px;
-    height: 60px;
-    align-items: center;
-  }
-
   svg {
     border: 1px solid red;
   }

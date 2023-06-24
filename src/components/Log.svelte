@@ -1,5 +1,5 @@
 <script>
-  import { log } from './stores/log.store'
+  import { log } from '../stores/log.store'
 
   export let show = false
 

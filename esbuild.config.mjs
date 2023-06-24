@@ -24,12 +24,10 @@ const context = await esbuild.context({
     {
       name: 'obsidian-drawing-rust',
       setup(build) {
-        build.onResolve({ filter: /obsidian-drawing-rust/ }, async args => {
-          console.log(args)
-          const files = await glob('./src-rust/src/**/*')
+        build.onResolve({ filter: /obsidian-drawing-rust/ }, async _args => {
           await exec(`npm run wasm-pack`)
           return {
-            watchFiles: files,
+            watchFiles: await glob('./src-rust/src/**/*'),
             namespace: 'rust',
           }
         })
@@ -81,7 +79,6 @@ const context = await esbuild.context({
     '@lezer/highlight',
     '@lezer/lr',
     ...builtins,
-    // 'obsidian-drawing-rust',
   ],
   format: 'cjs',
   target: 'es2018',
