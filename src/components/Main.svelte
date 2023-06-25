@@ -2,7 +2,8 @@
   import Log from './Log.svelte'
   import WebCanvas from './web-based/WebCanvas.svelte'
   import { scale } from '../stores/scale.store'
-
+  import RustCanvas from './rust-based/RustCanvas.svelte'
+  import {Notice} from 'obsidian'
   let showLog = false
 </script>
 
@@ -12,7 +13,8 @@
   <button on:click={() => showLog = !showLog}>Show Log</button>
 </nav>
 
-<WebCanvas />
+<!-- <WebCanvas /> -->
+<RustCanvas />
 
 <Log show={showLog} />
 
