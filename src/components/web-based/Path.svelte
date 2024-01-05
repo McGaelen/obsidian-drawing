@@ -1,11 +1,9 @@
-<script>
-  /** @type {{x: number, y: number}} */
-  export let origin = { x: 0, y: 0 }
+<script lang='ts'>
+  let { origin = { x: 0, y: 0 } } = $props<{ origin: { x: number, y: number } }>()
 
-  let d = ''
-  $: d = `M${origin.x},${origin.y}`
+  let d = $state(`M${origin.x},${origin.y}`)
 
-  export function lineTo(x, y) {
+  export function lineTo(x: number, y: number) {
     d = `${d}L${x},${y}`
   }
 </script>

@@ -1,11 +1,12 @@
 import { ItemView, WorkspaceLeaf } from 'obsidian'
-// @ts-ignore
+//@ts-ignore
 import Main from './components/Main.svelte'
+import { mount } from 'svelte'
 
 export const VIEW_TYPE_EXAMPLE = 'example-view'
 
 export default class ExampleView extends ItemView {
-  component: Main
+  unmount: () => void
 
   constructor(leaf: WorkspaceLeaf) {
     super(leaf)
@@ -20,17 +21,18 @@ export default class ExampleView extends ItemView {
   }
 
   async onOpen() {
-    this.component = new Main({
+    let [_, unmount] = mount(Main, {
       target: this.contentEl,
       props: {
         variable: 1,
       },
     })
+    this.unmount = unmount
     this.contentEl.style.contain = 'strict'
     this.contentEl.style.padding = '0'
   }
 
   async onClose() {
-    this.component.$destroy()
+    this.unmount?.()
   }
 }

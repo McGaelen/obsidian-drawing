@@ -5,7 +5,7 @@ const { update, subscribe } = writable([])
 export let log = thing => {
   console.log(thing)
 
-  let output = ''
+  let output = `<span style='color: dodgerblue'>${new Date().toISOString()}: </span>`
 
   if (typeof thing === 'object') {
     for (const prop in thing) {
@@ -14,7 +14,7 @@ export let log = thing => {
       }
     }
   } else {
-    output = thing?.toString()
+    output += thing?.toString()
   }
 
   update(arr => [...arr, output])

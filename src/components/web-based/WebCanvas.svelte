@@ -1,104 +1,95 @@
-<script>
-  import { writable } from 'svelte/store'
-  import Path from './Path.svelte'
-  import { scale } from '../../stores/scale.store'
+<script lang='ts'>
+  import { getStroke } from 'perfect-freehand'
+  import { create_path_data } from '../../utils/create_path_data'
+  import { log } from '../../stores/log.store'
+  import { onMount } from 'svelte'
 
-  /** @type SVGElement */
-  let svg
-  /** @type {Path | null} */
-  let currentPath = null
-  /** @type {import('svelte/store').Writable<[number, number]>}*/
-  let origin = writable([0, 0])
+  type InputPoint = { x: number, y: number, pressure?: number }
 
-  // TODO: When viewBox and width/height are different, the offsetX/Y property doesn't work correctly.
-  // TODO: Origin for pinch-to-zoom doesn't work correctly. It zooms the svg, but not at the center of the touch points.
+  let svg: SVGElement
+  let pen_coords: InputPoint | null = $state(null)
+  let is_drawing = $state(false)
+  let current_path: SVGPathElement | null = null
 
-  /** @param event {PointerEvent}*/
-  function onPointerDown(event) {
-    if (event.pointerType === 'pen' || event.pointerType === 'mouse') {
-      event.preventDefault()
-      currentPath = new Path({
-          target: svg,
-          props: {
-            origin: { x: event.offsetX, y: event.offsetY },
-          },
-        },
-      )
+  onMount(() => {
+    /**
+     * WARNING!!!!! WEIRD AND STUPID THINGS LIE AHEAD!!!!!
+     * DO NOT READ if you are allergic to browser-specific bugs like I am.
+     * Yes, we are _forced_ to add these listeners here using Vanilla JS.
+     * Why, you ask? No idea. It's the only way to make Safari work.
+     * Otherwise, on iPad with an Apple Pencil, the pointer events will stop emitting
+     * and be replaced by touch events (which then scrolls the page if you don't preventDefault().)
+     * It's like the listeners aren't even being set correctly? Could be a bug with Svelte 5.
+     * But why only these events and not others?
+     */
+    svg.addEventListener('touchstart', handle_touch)
+    svg.addEventListener('touchmove', handle_touch)
+    /** END WEIRD AND STUPID ZONE */
+  })
+
+  // This effect should run everytime the pen starts touching the screen
+  $effect(() => {
+    if (!is_drawing) {
+      log('drawing end')
+      current_path = null
+      return
     }
-  }
 
-  /**
-   * `event.pointerType` can be 'mouse' | 'touch' | 'pen'
-   * @param event {PointerEvent}
-   */
-  function onPointerMove(event) {
-    if (event.pointerType === 'pen' || event.pointerType === 'mouse') {
-      event.preventDefault()
+    if (!current_path) {
+      log('drawing start')
+      current_path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+      current_path.style.fill = '#ffffff'
+      svg.appendChild(current_path)
+    }
 
-      if (currentPath) {
-        currentPath.lineTo(event.offsetX, event.offsetY)
+    const points: InputPoint[] = []
+    // This effect should run everytime the pen moves, but only while drawing
+    $effect(() => {
+      if (!pen_coords) return
+
+      points.push(pen_coords)
+
+      const path_data = create_path_data(getStroke(points, {
+        simulatePressure: false,
+        size: 5,
+        smoothing: 0.5,
+        streamline: 0.4,
+      }))
+
+      current_path?.setAttribute('d', path_data)
+    })
+  })
+
+  function handle(handler?: (e: PointerEvent) => void): (e: PointerEvent) => void {
+    return (e) => {
+      if (e.pointerType === 'pen' || e.pointerType === 'mouse') {
+        e.preventDefault()
+        handler?.(e)
       }
     }
   }
 
-  /** @param event {PointerEvent}*/
-  function onPointerUp(event) {
-    if (event.pointerType === 'pen' || event.pointerType === 'mouse') {
-      currentPath = null
-    }
-  }
-
-  let previousDistance = 0
-  let change = 0
-
-  /** @param event {TouchEvent}*/
-  function onTouchMove(event) {
-    // on iOS, inputs from apple pencil are turned into touch events for some reason.
-    // We don't want any pen inputs firing as touch events, so we suppress it here.
-    // Also... `event.touches` is not a standard array for some reason???? So, have to do for loop instead of `some()`.
-    for (const touch of event.touches) {
+  function handle_touch(e: TouchEvent) {
+    for (const touch of e.touches) {
       if (touch.touchType === 'stylus') {
-        event.preventDefault()
+        e.preventDefault()
       }
-    }
-
-    switch (event.touches.length) {
-      case 2:
-        event.preventDefault()
-        const x1 = event.touches[0].screenX,
-          y1 = event.touches[0].screenY,
-          x2 = event.touches[1].screenX,
-          y2 = event.touches[1].screenY
-
-        const distance = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
-
-        origin.set([
-          ((x2 - x1) / 2) + 1,
-          ((y2 - y1) / 2) + 1,
-        ])
-
-        if (previousDistance) {
-          change = distance - previousDistance
-          $scale = $scale < 0.5 ? 0.5 : $scale + change * 0.01
-        }
-        previousDistance = distance
-        return
-      default:
     }
   }
 </script>
 
 <svg
   bind:this={svg}
-  on:touchmove={onTouchMove}
-  on:touchend={() => (previousDistance = 0)}
-  on:pointermove={onPointerMove}
-  on:pointerdown={onPointerDown}
-  on:pointerup={onPointerUp}
+  on:pointerdown={handle(() => is_drawing = true)}
+  on:pointerup={handle(() => is_drawing = false)}
+  on:pointerleave={handle(() => is_drawing = false)}
+  on:pointermove={handle((e) => {
+    pen_coords = {x: e.offsetX, y: e.offsetY, pressure: e.pressure}
+  })}
   width='1000'
   height='1000'
   viewBox='0 0 1000 1000'
-  style='transform: scale({$scale}); transform-origin: {$origin[0]}px {$origin[1]}px'
+  style='transform: scale(1.0)'
   stroke-width='2'
   stroke='#FFFFFF'
   fill='none'

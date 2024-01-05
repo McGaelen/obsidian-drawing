@@ -1,7 +1,5 @@
 // noinspection JSUnusedGlobalSymbols
 import { Plugin } from 'obsidian'
-import init, { greet } from 'obsidian-drawing-rust'
-import { readFile } from 'fs/promises'
 import SampleSettingTab from './SampleSettingTab'
 import ExampleView, { VIEW_TYPE_EXAMPLE } from './ExampleView'
 
@@ -17,20 +15,7 @@ export default class HelloWorldPlugin extends Plugin {
   settings: MyPluginSettings
 
   async onload() {
-    // Read the wasm file and initialize it
-    const wasmBin = await readFile(
-      // @ts-expect-error
-      `${this.app.vault.adapter.basePath}/.obsidian/plugins/obsidian-drawing/pkg/obsidian_drawing_rust_bg.wasm`,
-    )
-    await init(wasmBin)
-
     await this.loadSettings()
-
-    this.addCommand({
-      id: 'greet-from-rust',
-      name: 'Greet from Rust',
-      callback: greet,
-    })
 
     // This adds a settings tab so the user can configure various aspects of the plugin
     this.addSettingTab(new SampleSettingTab(this.app, this))
