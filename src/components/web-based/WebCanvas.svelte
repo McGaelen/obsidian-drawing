@@ -1,7 +1,6 @@
 <script lang='ts'>
   import { getStroke } from 'perfect-freehand'
   import { create_path_data } from '../../utils/create_path_data'
-  import { log } from '../../stores/log.store'
   import { onMount } from 'svelte'
 
   type InputPoint = { x: number, y: number, pressure?: number }
@@ -30,13 +29,11 @@
   // This effect should run everytime the pen starts touching the screen
   $effect(() => {
     if (!is_drawing) {
-      log('drawing end')
       current_path = null
       return
     }
 
     if (!current_path) {
-      log('drawing start')
       current_path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
       current_path.style.fill = '#ffffff'
       svg.appendChild(current_path)

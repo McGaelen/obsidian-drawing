@@ -2,22 +2,33 @@ import { writable } from 'svelte/store'
 
 const { update, subscribe } = writable([])
 
-export let log = thing => {
-  console.log(thing)
+export let log = {
+  subscribe,
+}
 
-  let output = `<span style='color: dodgerblue'>${new Date().toISOString()}: </span>`
+const oldLog = console.log
+console.log = function () {
+  oldLog('lol ', ...arguments)
 
-  if (typeof thing === 'object') {
-    for (const prop in thing) {
-      if (typeof thing[prop] !== 'function') {
-        output += `${prop}: ${thing[prop]}, `
-      }
-    }
-  } else {
-    output += thing?.toString()
-  }
+  let output = getOutput(...arguments)
 
   update(arr => [...arr, output])
 }
 
-log.subscribe = subscribe
+function getOutput() {
+  let output = `<span style='color: dodgerblue'>${new Date().toISOString()}: </span>`
+
+  for (const thing of arguments) {
+    if (typeof thing === 'object') {
+      for (const prop in thing) {
+        if (typeof thing[prop] !== 'function') {
+          output += `${prop}: ${thing[prop]}, `
+        }
+      }
+    } else {
+      output += thing?.toString()
+    }
+  }
+
+  return output
+}

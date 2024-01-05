@@ -1,6 +1,5 @@
 <script>
   import WebCanvas from './web-based/WebCanvas.svelte'
-  import { scale } from '../stores/scale.store'
   import Log from './Log.svelte'
 
   let show_log = $state(false)
@@ -8,7 +7,6 @@
 
 <nav>
   <h1>My Drawing App!</h1>
-  <input type='range' min='0' max='2' step='0.000000001' bind:value={$scale} />
   <button on:click={() => show_log = !show_log}>Show Log</button>
 </nav>
 
