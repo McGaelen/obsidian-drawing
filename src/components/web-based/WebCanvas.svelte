@@ -77,7 +77,10 @@
 
 <svg
   bind:this={svg}
-  on:pointerdown={handle(() => is_drawing = true)}
+  on:pointerdown={handle((e) => {
+    pen_coords = {x: e.offsetX, y: e.offsetY, pressure: e.pressure}
+    is_drawing = true
+  })}
   on:pointerup={handle(() => is_drawing = false)}
   on:pointerleave={handle(() => is_drawing = false)}
   on:pointermove={handle((e) => {

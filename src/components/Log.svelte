@@ -3,7 +3,7 @@
    * Why does this component exist? Because I can't see dev tools on an iPad because I don't have a Mac.
    * It's janky, but it works, and it's only a development tool.
    */
-  import { log } from '../stores/log.store'
+  import log from '../stores/log.store'
 
   let { show = false } = $props()
 
@@ -26,7 +26,7 @@
 
 {#if show}
   <div bind:this={div}>
-    {#each $log as text}
+    {#each log.lines as text}
       <code>{@html text}</code>
     {/each}
   </div>

@@ -21,9 +21,11 @@ export default class HelloWorldPlugin extends Plugin {
     this.addSettingTab(new SampleSettingTab(this.app, this))
 
     this.registerView(VIEW_TYPE_EXAMPLE, leaf => new ExampleView(leaf))
-
+    this.app.workspace.on('file-open', file => {
+      console.log('opening file: ', file)
+    })
     this.addRibbonIcon('dice', 'Activate view', async () => {
-      this.app.workspace.detachLeavesOfType(VIEW_TYPE_EXAMPLE)
+      // this.app.workspace.detachLeavesOfType(VIEW_TYPE_EXAMPLE)
 
       await this.app.workspace
         .getLeaf(true)
@@ -35,7 +37,9 @@ export default class HelloWorldPlugin extends Plugin {
     })
   }
 
-  onunload() {}
+  onunload() {
+    console.log('onunload')
+  }
 
   async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData())

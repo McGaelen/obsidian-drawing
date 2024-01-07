@@ -20,6 +20,10 @@ const context = await esbuild.context({
       compilerOptions: {
         css: 'injected',
       },
+      moduleCompileOptions: {
+        generate: 'client',
+        dev: true,
+      },
       preprocess: sveltePreprocess({ typescript: true }),
     }),
     copy({

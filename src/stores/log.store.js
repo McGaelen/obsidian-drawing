@@ -1,18 +1,15 @@
-import { writable } from 'svelte/store'
+let lines = $state([])
 
-const { update, subscribe } = writable([])
-
-export let log = {
-  subscribe,
+export default {
+  get lines() {
+    return lines
+  },
 }
 
-const oldLog = console.log
+export const oldLog = console.log
 console.log = function () {
-  oldLog('lol ', ...arguments)
-
-  let output = getOutput(...arguments)
-
-  update(arr => [...arr, output])
+  oldLog(...arguments)
+  lines = [...lines, getOutput(...arguments)]
 }
 
 function getOutput() {
