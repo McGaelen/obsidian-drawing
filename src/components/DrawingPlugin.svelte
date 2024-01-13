@@ -1,9 +1,15 @@
-<script lang='ts'>
+<script lang="ts">
   import { getStroke } from 'perfect-freehand'
-  import { create_path_data } from '../../utils/create_path_data'
-  import { onMount } from 'svelte'
+  import { create_path_data } from '../utils/create_path_data'
+  import { onMount, setContext } from 'svelte'
+  import { type App, debounce, TFile } from 'obsidian'
 
-  type InputPoint = { x: number, y: number, pressure?: number }
+  type InputPoint = { x: number; y: number; pressure?: number }
+
+  let { app, source } = $props<{ app: App; source: string }>()
+  setContext<{ app: App }>('drawing-plugin-context', {
+    app,
+  })
 
   let svg: SVGElement
   let pen_coords: InputPoint | null = $state(null)
@@ -11,6 +17,8 @@
   let current_path: SVGPathElement | null = null
 
   onMount(() => {
+    const svg_dom = new DOMParser().parseFromString(source, 'image/svg+xml')
+    svg.innerHTML = svg_dom.querySelector('svg')?.innerHTML || ''
     /**
      * WARNING!!!!! WEIRD AND STUPID THINGS LIE AHEAD!!!!!
      * DO NOT READ if you are allergic to browser-specific bugs like I am.
@@ -34,31 +42,58 @@
     }
 
     if (!current_path) {
-      current_path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+      current_path = document.createElementNS(
+        'http://www.w3.org/2000/svg',
+        'path',
+      )
       current_path.style.fill = '#ffffff'
       svg.appendChild(current_path)
     }
 
     const points: InputPoint[] = []
     // This effect should run everytime the pen moves, but only while drawing
-    $effect(() => {
+    $effect(async () => {
       if (!pen_coords) return
 
       points.push(pen_coords)
 
-      const path_data = create_path_data(getStroke(points, {
-        simulatePressure: false,
-        size: 5,
-        smoothing: 0.5,
-        streamline: 0.4,
-      }))
+      const path_data = create_path_data(
+        getStroke(points, {
+          simulatePressure: false,
+          size: 5,
+          smoothing: 0.5,
+          streamline: 0.4,
+        }),
+      )
 
       current_path?.setAttribute('d', path_data)
+
+      // console.log(app.workspace.getActiveFile())
+
+      debouncedWrite()
     })
   })
 
-  function handle(handler?: (e: PointerEvent) => void): (e: PointerEvent) => void {
-    return (e) => {
+  const debouncedWrite = debounce(async () => {
+    if (is_drawing) return
+
+    const file = app.workspace.getActiveFile()!
+
+    await app.vault.process(file, content => {
+      const start_idx = content.indexOf("```drawing") + 10 // plus length of ```drawing
+      const end_idx = content.indexOf("```", start_idx)
+
+      const ary = Array.from(content)
+      ary.splice(start_idx, end_idx - start_idx, '\n', svg.outerHTML, '\n')
+
+      return ary.join('')
+    })
+  }, 2000, true)
+
+  function handle(
+    handler?: (e: PointerEvent) => void,
+  ): (e: PointerEvent) => void {
+    return e => {
       if (e.pointerType === 'pen' || e.pointerType === 'mouse') {
         e.preventDefault()
         handler?.(e)
@@ -76,29 +111,25 @@
 </script>
 
 <svg
+  height="1000"
   bind:this={svg}
-  on:pointerdown={handle((e) => {
-    pen_coords = {x: e.offsetX, y: e.offsetY, pressure: e.pressure}
+  on:pointerdown={handle(e => {
+    pen_coords = { x: e.offsetX, y: e.offsetY, pressure: e.pressure }
     is_drawing = true
   })}
-  on:pointerup={handle(() => is_drawing = false)}
-  on:pointerleave={handle(() => is_drawing = false)}
-  on:pointermove={handle((e) => {
-    pen_coords = {x: e.offsetX, y: e.offsetY, pressure: e.pressure}
+  on:pointerup={handle(() => {
+    is_drawing = false
+    debouncedWrite()
   })}
-  width='1000'
-  height='1000'
-  viewBox='0 0 1000 1000'
-  style='transform: scale(1.0)'
-  stroke-width='2'
-  stroke='#FFFFFF'
-  fill='none'
-  stroke-linecap='round'
-  stroke-linejoin='round'
+  on:pointerleave={handle(() => (is_drawing = false))}
+  on:pointermove={handle(e => {
+    pen_coords = { x: e.offsetX, y: e.offsetY, pressure: e.pressure }
+  })}
 />
 
 <style>
   svg {
     border: 1px solid red;
+    width: -webkit-fill-available;
   }
 </style>

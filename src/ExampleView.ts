@@ -23,9 +23,6 @@ export default class ExampleView extends ItemView {
   async onOpen() {
     let [_, unmount] = mount(Main, {
       target: this.contentEl,
-      props: {
-        variable: 1,
-      },
     })
     this.unmount = unmount
     this.contentEl.style.contain = 'strict'
