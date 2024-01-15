@@ -129,7 +129,7 @@
 
 <style>
   svg {
-    border: 1px solid red;
+    /*border: 1px solid red;*/
     width: -webkit-fill-available;
   }
 </style>
