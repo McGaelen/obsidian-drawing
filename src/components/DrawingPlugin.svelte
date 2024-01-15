@@ -2,7 +2,8 @@
   import { getStroke } from 'perfect-freehand'
   import { create_path_data } from '../utils/create_path_data'
   import { onMount, setContext } from 'svelte'
-  import { type App, debounce, TFile } from 'obsidian'
+  import { type App, debounce } from 'obsidian'
+  import interact from 'interactjs'
 
   type InputPoint = { x: number; y: number; pressure?: number }
 
@@ -15,10 +16,35 @@
   let pen_coords: InputPoint | null = $state(null)
   let is_drawing = $state(false)
   let current_path: SVGPathElement | null = null
+  let height = $state(500)
 
   onMount(() => {
-    const svg_dom = new DOMParser().parseFromString(source, 'image/svg+xml')
-    svg.innerHTML = svg_dom.querySelector('svg')?.innerHTML || ''
+    const saved_svg = new DOMParser()
+      .parseFromString(source, 'image/svg+xml')
+      .querySelector('svg')
+
+    if (saved_svg) {
+      for (const attr of saved_svg.getAttributeNames()) {
+        svg.setAttr(attr, saved_svg.getAttribute(attr))
+      }
+
+      svg.innerHTML = saved_svg.innerHTML
+    }
+
+    const saved_height = svg.getAttribute('height')
+    height = saved_height ? parseInt(saved_height) : height
+
+    interact(svg).resizable({
+      edges: {
+        bottom: true,
+      },
+      listeners: {
+        move(e) {
+          height = e.rect.height
+        }
+      }
+    })
+
     /**
      * WARNING!!!!! WEIRD AND STUPID THINGS LIE AHEAD!!!!!
      * DO NOT READ if you are allergic to browser-specific bugs like I am.
@@ -111,7 +137,7 @@
 </script>
 
 <svg
-  height="1000"
+  {height}
   bind:this={svg}
   on:pointerdown={handle(e => {
     pen_coords = { x: e.offsetX, y: e.offsetY, pressure: e.pressure }
