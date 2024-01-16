@@ -1,18 +1,16 @@
 <script lang="ts">
   import { getStroke } from 'perfect-freehand'
   import { create_path_data } from '../utils/create_path_data'
-  import { onMount, setContext } from 'svelte'
+  import { onMount } from 'svelte'
   import { type App, debounce } from 'obsidian'
   import interact from 'interactjs'
 
   type InputPoint = { x: number; y: number; pressure?: number }
 
-  let { app, source } = $props<{ app: App; source: string }>()
-  setContext<{ app: App }>('drawing-plugin-context', {
-    app,
-  })
+  const { app, source } = $props<{ app: App; source: string }>()
 
   let svg: SVGElement
+  let resizer: HTMLDivElement
   let pen_coords: InputPoint | null = $state(null)
   let is_drawing = $state(false)
   let current_path: SVGPathElement | null = null
@@ -34,13 +32,10 @@
     const saved_height = svg.getAttribute('height')
     height = saved_height ? parseInt(saved_height) : height
 
-    interact(svg).resizable({
-      edges: {
-        bottom: true,
-      },
+    interact(resizer).draggable({
       listeners: {
         move(e) {
-          height = e.rect.height
+          height += e.dy
         }
       }
     })
@@ -93,8 +88,6 @@
       )
 
       current_path?.setAttribute('d', path_data)
-
-      // console.log(app.workspace.getActiveFile())
 
       debouncedWrite()
     })
@@ -153,9 +146,29 @@
   })}
 />
 
+<div bind:this={resizer} class="resizer"/>
+
+
 <style>
   svg {
-    /*border: 1px solid red;*/
     width: -webkit-fill-available;
+  }
+
+  :global(.block-language-drawing) {
+    cursor: crosshair !important;
+  }
+
+  .resizer {
+    transition: all;
+    transition-duration: 200ms;
+    height: 5px;
+    background-color: var(--divider-color);
+    border-bottom-left-radius: var(--radius-s);
+    border-bottom-right-radius: var(--radius-s);
+    cursor: row-resize !important;
+  }
+
+  .resizer:hover {
+    background-color: var(--interactive-accent);
   }
 </style>
