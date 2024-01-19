@@ -2,7 +2,7 @@
   import { getStroke } from 'perfect-freehand'
   import { create_path_data } from '../utils/create_path_data'
   import { onMount } from 'svelte'
-  import { type App, debounce } from 'obsidian'
+  import {type App, EditorPosition, Platform} from 'obsidian'
   import interact from 'interactjs'
 
   type InputPoint = { x: number; y: number; pressure?: number }
@@ -11,6 +11,7 @@
 
   let svg: SVGElement
   let resizer: HTMLDivElement
+  let scroller: HTMLDivElement
   let pen_coords: InputPoint | null = $state(null)
   let is_drawing = $state(false)
   let current_path: SVGPathElement | null = null
@@ -88,26 +89,36 @@
       )
 
       current_path?.setAttribute('d', path_data)
-
-      debouncedWrite()
     })
   })
 
-  const debouncedWrite = debounce(async () => {
+  // const debouncedWrite = debounce(write, 2000, true)
+
+  async function write() {
     if (is_drawing) return
 
-    const file = app.workspace.getActiveFile()!
+    const activeEditor = app.workspace.activeEditor
+    const content = activeEditor.editor.getValue().split('\n')
 
-    await app.vault.process(file, content => {
-      const start_idx = content.indexOf("```drawing") + 10 // plus length of ```drawing
-      const end_idx = content.indexOf("```", start_idx)
+    const start_line_idx = content.findIndex(line => line.contains("```drawing"))
+    const start_pos: EditorPosition = {
+      ch: content.find(line => line.contains("```drawing"))?.indexOf("```drawing") + 10,
+      line: start_line_idx
+    }
+    const end_pos: EditorPosition = {
+      ch: content.find(line => line.contains("```"))?.indexOf("```"),
+      line: content.findIndex((line, idx) => {
+        if (idx <= start_line_idx) return false
+        return line.contains("```")
+      })
+    }
 
-      const ary = Array.from(content)
-      ary.splice(start_idx, end_idx - start_idx, '\n', svg.outerHTML, '\n')
-
-      return ary.join('')
+    activeEditor.editor.transaction({
+      changes: [
+        {from: start_pos, to: end_pos, text: '\n' + svg.outerHTML + '\n'}
+      ]
     })
-  }, 2000, true)
+  }
 
   function handle(
     handler?: (e: PointerEvent) => void,
@@ -138,7 +149,7 @@
   })}
   on:pointerup={handle(() => {
     is_drawing = false
-    debouncedWrite()
+    write()
   })}
   on:pointerleave={handle(() => (is_drawing = false))}
   on:pointermove={handle(e => {
@@ -146,7 +157,7 @@
   })}
 />
 
-<div bind:this={resizer} class="resizer"/>
+<div bind:this={resizer} class="resizer" class:taller={Platform.isMobile || Platform.isMobileApp}/>
 
 
 <style>
@@ -166,6 +177,11 @@
     border-bottom-left-radius: var(--radius-s);
     border-bottom-right-radius: var(--radius-s);
     cursor: row-resize !important;
+    touch-action: none;
+  }
+
+  .resizer.taller {
+    height: 20px;
   }
 
   .resizer:hover {

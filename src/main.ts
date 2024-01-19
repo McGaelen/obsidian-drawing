@@ -1,8 +1,11 @@
 // noinspection JSUnusedGlobalSymbols
-import { type MarkdownPostProcessorContext, Plugin } from 'obsidian'
+import {App, MarkdownEditView, type MarkdownPostProcessorContext, MarkdownView, Plugin} from 'obsidian'
 import SampleSettingTab from './SampleSettingTab'
-import { mount } from 'svelte'
+import {createRoot, mount} from 'svelte'
 import DrawingPlugin from './components/DrawingPlugin.svelte'
+import type {PluginValue} from "@codemirror/view";
+import {EditorView, ViewPlugin, ViewUpdate} from "@codemirror/view";
+import {StateField} from "@codemirror/state";
 
 interface MyPluginSettings {
   mySetting: string
@@ -14,7 +17,7 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 
 export default class HelloWorldPlugin extends Plugin {
   settings: MyPluginSettings
-  unmount: () => void
+  svelte_root: null | (Record<string, any> & {   $destroy: () => void;   $set: (props: Partial<{     app: App;     source: string;   }>) => void; } ) = null
 
   async onload() {
     await this.loadSettings()
@@ -30,7 +33,7 @@ export default class HelloWorldPlugin extends Plugin {
 
   onunload() {
     console.log('onunload')
-    this.unmount()
+    this.svelte_root?.$destroy()
   }
 
   async loadSettings() {
@@ -48,15 +51,17 @@ function drawingMarkdownCodeBlockProcessor(
   el: HTMLElement,
   ctx: MarkdownPostProcessorContext,
 ) {
-  if (this.unmount) this.unmount()
+  if (this.svelte_root) {
+    this.svelte_root.$destroy()
+  }
 
-  console.log({ source, el, ctx })
-  let [_, unmount] = mount(DrawingPlugin, {
+  this.svelte_root  = createRoot(DrawingPlugin, {
     target: el,
     props: {
       app: this.app,
       source,
     },
   })
-  this.unmount = unmount
 }
+
+
