@@ -11,7 +11,6 @@
 
   let svg: SVGElement
   let resizer: HTMLDivElement
-  let scroller: HTMLDivElement
   let pen_coords: InputPoint | null = $state(null)
   let is_drawing = $state(false)
   let current_path: SVGPathElement | null = null
@@ -97,26 +96,16 @@
   async function write() {
     if (is_drawing) return
 
-    const activeEditor = app.workspace.activeEditor
-    const content = activeEditor.editor.getValue().split('\n')
+    const file = app.workspace.getActiveFile()!
 
-    const start_line_idx = content.findIndex(line => line.contains("```drawing"))
-    const start_pos: EditorPosition = {
-      ch: content.find(line => line.contains("```drawing"))?.indexOf("```drawing") + 10,
-      line: start_line_idx
-    }
-    const end_pos: EditorPosition = {
-      ch: content.find(line => line.contains("```"))?.indexOf("```"),
-      line: content.findIndex((line, idx) => {
-        if (idx <= start_line_idx) return false
-        return line.contains("```")
-      })
-    }
+    await app.vault.process(file, content => {
+      const start_idx = content.indexOf("```drawing") + 10 // plus length of ```drawing
+      const end_idx = content.indexOf("```", start_idx)
 
-    activeEditor.editor.transaction({
-      changes: [
-        {from: start_pos, to: end_pos, text: '\n' + svg.outerHTML + '\n'}
-      ]
+      const ary = Array.from(content)
+      ary.splice(start_idx, end_idx - start_idx, '\n', svg.outerHTML, '\n')
+
+      return ary.join('')
     })
   }
 
