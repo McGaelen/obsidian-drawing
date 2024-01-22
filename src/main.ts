@@ -1,7 +1,6 @@
 // noinspection JSUnusedGlobalSymbols
 import { App, type MarkdownPostProcessorContext, Plugin } from 'obsidian'
 import SampleSettingTab from './SampleSettingTab'
-import { createRoot } from 'svelte'
 import DrawingPlugin from './components/DrawingPlugin.svelte'
 
 interface MyPluginSettings {
@@ -14,12 +13,7 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 
 export default class HelloWorldPlugin extends Plugin {
   settings: MyPluginSettings
-  svelte_root:
-    | null
-    | (Record<string, any> & {
-        $destroy: () => void
-        $set: (props: Partial<{ app: App; source: string }>) => void
-      }) = null
+  svelte_root: DrawingPlugin | null
 
   async onload() {
     await this.loadSettings()
@@ -34,7 +28,6 @@ export default class HelloWorldPlugin extends Plugin {
   }
 
   onunload() {
-    console.log('onunload')
     this.svelte_root?.$destroy()
   }
 
@@ -53,15 +46,16 @@ function drawingMarkdownCodeBlockProcessor(
   el: HTMLElement,
   ctx: MarkdownPostProcessorContext,
 ) {
-  if (this.svelte_root) {
-    this.svelte_root.$destroy()
-  }
+  // debugger
 
-  this.svelte_root = createRoot(DrawingPlugin, {
+  this.svelte_root = new DrawingPlugin({
     target: el,
     props: {
       app: this.app,
       source,
     },
   })
+
+  el.parentElement!.style.height =
+    this.svelte_root.get_height().toString() + 'px'
 }
