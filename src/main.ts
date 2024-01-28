@@ -3,7 +3,7 @@ import { Plugin } from 'obsidian'
 import SampleSettingTab from './SampleSettingTab'
 import { Decoration, type DecorationSet, EditorView } from '@codemirror/view'
 import { type Extension, RangeSetBuilder, StateField } from '@codemirror/state'
-import { HideSvg, SvelteRoot } from './widgets'
+import { SvelteRoot } from './widgets'
 
 interface MyPluginSettings {
   mySetting: string

@@ -1,12 +1,6 @@
-import { EditorView, WidgetType } from '@codemirror/view'
+import { WidgetType } from '@codemirror/view'
 import DrawingPlugin from './components/DrawingPlugin.svelte'
 import { App } from 'obsidian'
-
-export class HideSvg extends WidgetType {
-  toDOM(_: EditorView): HTMLElement {
-    return document.createElement('div')
-  }
-}
 
 export class SvelteRoot extends WidgetType {
   private svelteRoot: DrawingPlugin
