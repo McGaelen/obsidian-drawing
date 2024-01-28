@@ -36,16 +36,11 @@ export default class HelloWorldPlugin extends Plugin {
 
         const source = content.slice(startIdx, endIdx)
 
+        // Be very careful adding more decorations... They might break iPad by causing it to scroll again.
         builder.add(
           startIdx - 11,
           startIdx,
           Decoration.replace({ widget: new SvelteRoot(app, source) }),
-        )
-
-        builder.add(
-          startIdx,
-          endIdx + 1,
-          Decoration.replace({ widget: new HideSvg() }),
         )
 
         return builder.finish()
