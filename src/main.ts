@@ -3,7 +3,7 @@ import { Plugin } from 'obsidian'
 import SampleSettingTab from './SampleSettingTab'
 import { Decoration, type DecorationSet, EditorView } from '@codemirror/view'
 import { type Extension, RangeSetBuilder, StateField } from '@codemirror/state'
-import { SvelteRoot } from './widgets'
+import { HideSvg, SvelteRoot } from './widgets'
 
 interface MyPluginSettings {
   mySetting: string
@@ -23,7 +23,7 @@ export default class HelloWorldPlugin extends Plugin {
     this.addSettingTab(new SampleSettingTab(this.app, this))
 
     let app = this.app
-    const state = StateField.define<DecorationSet>({
+    const canvas = StateField.define<DecorationSet>({
       create(_): DecorationSet {
         return Decoration.none
       },
@@ -31,17 +31,27 @@ export default class HelloWorldPlugin extends Plugin {
         const builder = new RangeSetBuilder<Decoration>()
 
         const content = tx.state.doc.toString()
-        const startIdx = content.indexOf('\n```drawing\n') + 12 // index starts at beginning of matched string, so we need to add 11 to get the end instead
-        const endIdx = content.indexOf('\n```', startIdx)
+        const startIdx = content.indexOf('\n```drawing\n') // index starts at beginning of matched string, so we need to add 11 to get the end instead
+        if (startIdx === -1) {
+          return Decoration.none
+        }
+        const startTailIdx = startIdx + 12
+        const endIdx = content.indexOf('\n```', startTailIdx)
 
-        const source = content.slice(startIdx, endIdx)
+        const source = content.slice(startTailIdx, endIdx)
 
         // Be very careful adding more decorations... They might break iPad by causing it to scroll again.
         builder.add(
-          startIdx - 11,
-          startIdx,
+          startIdx + 1,
+          startTailIdx,
           Decoration.replace({ widget: new SvelteRoot(app, source) }),
         )
+
+        // builder.add(
+        //   startTailIdx + 1,
+        //   endIdx,
+        //   Decoration.replace({ widget: new HideSvg() }),
+        // )
 
         return builder.finish()
       },
@@ -50,7 +60,7 @@ export default class HelloWorldPlugin extends Plugin {
       },
     })
 
-    this.registerEditorExtension(state)
+    this.registerEditorExtension([canvas])
   }
 
   async loadSettings() {

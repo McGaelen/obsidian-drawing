@@ -7,9 +7,10 @@
   export let app: App
   export let source: string
 
-  let canvasEl: HTMLCanvasElement
   let canvas: fabric.Canvas
+  let canvasEl: HTMLCanvasElement
   let resizer: HTMLDivElement
+  let container: HTMLDivElement
 
   let height = 500
 
@@ -22,6 +23,7 @@
       .parseFromString(source, 'image/svg+xml')
       .querySelector('svg')
 
+    console.log('width', container.parentElement.offsetWidth)
     const saved_height = saved_svg?.getAttribute('height')
     height = saved_height ? parseInt(saved_height) : height
 
@@ -38,13 +40,16 @@
       freeDrawingCursor: 'crosshair',
     })
 
+    canvas.setWidth(800)
+
     fabric.loadSVGFromString(source, (results, options) => {
-      const obj = fabric.util.groupSVGElements(results, options)
-      canvas.add(obj).renderAll()
+      for (const res of results) {
+        canvas.add(res)
+      }
+      canvas.renderAll()
     })
 
     canvas.on('mouse:up', _ => write())
-
     canvas.freeDrawingBrush.color = '#ffffff'
     canvas.freeDrawingBrush.width = 5
   })
@@ -68,7 +73,7 @@
   }
 </script>
 
-<div>
+<div bind:this={container}>
   {#key source}
     <div class="toolbar">
       <button
@@ -76,6 +81,9 @@
           if (!canvas) return
           canvas.isDrawingMode = !canvas.isDrawingMode
         }}>Toggle Drawing</button
+      >
+      <button on:click={() => canvas.setWidth(container.offsetWidth)}
+        >reset width</button
       >
     </div>
   {/key}
@@ -89,8 +97,7 @@
 
 <style>
   canvas {
-    width: 100% !important;
-    /*width: -webkit-fill-available;*/
+    border: 1px solid red;
   }
 
   .resizer {
@@ -98,8 +105,7 @@
     transition-duration: 200ms;
     height: 5px;
     background-color: var(--divider-color);
-    border-bottom-left-radius: var(--radius-s);
-    border-bottom-right-radius: var(--radius-s);
+    border-radius: var(--radius-s);
     cursor: row-resize !important;
     touch-action: none;
   }
@@ -118,7 +124,7 @@
 
   .toolbar {
     position: sticky;
-    top: -40px;
+    top: -32px;
     left: 0;
     z-index: 999999;
   }
