@@ -3,7 +3,7 @@ import { Plugin } from 'obsidian'
 import SampleSettingTab from './SampleSettingTab'
 import { Decoration, type DecorationSet, EditorView } from '@codemirror/view'
 import { type Extension, RangeSetBuilder, StateField } from '@codemirror/state'
-import { HideSvg, SvelteRoot } from './widgets'
+import { SvelteRoot } from './widgets'
 
 interface MyPluginSettings {
   mySetting: string
@@ -29,29 +29,24 @@ export default class HelloWorldPlugin extends Plugin {
       },
       update(_, tx): DecorationSet {
         const builder = new RangeSetBuilder<Decoration>()
-
         const content = tx.state.doc.toString()
-        const startIdx = content.indexOf('\n```drawing\n') // index starts at beginning of matched string, so we need to add 11 to get the end instead
+
+        const startIdx = content.indexOf('%%ObsidianDrawing%%')
         if (startIdx === -1) {
           return Decoration.none
         }
-        const startTailIdx = startIdx + 12
-        const endIdx = content.indexOf('\n```', startTailIdx)
+        const endIdx = startIdx + 19
 
-        const source = content.slice(startTailIdx, endIdx)
+        const srcStartIdx = content.indexOf('```obsidianDrawing', endIdx) + 18
+        const srcEndIdx = content.indexOf('```', srcStartIdx)
+        const source = content.slice(srcStartIdx, srcEndIdx)
 
         // Be very careful adding more decorations... They might break iPad by causing it to scroll again.
         builder.add(
-          startIdx + 1,
-          startTailIdx,
+          startIdx,
+          endIdx,
           Decoration.replace({ widget: new SvelteRoot(app, source) }),
         )
-
-        // builder.add(
-        //   startTailIdx + 1,
-        //   endIdx,
-        //   Decoration.replace({ widget: new HideSvg() }),
-        // )
 
         return builder.finish()
       },

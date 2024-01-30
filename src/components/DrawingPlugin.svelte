@@ -61,11 +61,11 @@
     const file = app.workspace.getActiveFile()!
 
     await app.vault.process(file, content => {
-      const start_idx = content.indexOf('```drawing') + 10 // plus length of ```drawing
+      const start_idx = content.indexOf('```obsidianDrawing') + 18
       const end_idx = content.indexOf('```', start_idx)
 
       const ary = Array.from(content)
-      const svg_text = canvas.toSVG().replaceAll('\n', '')
+      const svg_text = canvas.toSVG()
       ary.splice(start_idx, end_idx - start_idx, '\n', svg_text, '\n')
 
       return ary.join('')
