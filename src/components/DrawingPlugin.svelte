@@ -1,11 +1,12 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
-  import { type App, debounce, Platform, type TFile } from 'obsidian'
+  import { createEventDispatcher, onMount } from 'svelte'
+  import { Platform } from 'obsidian'
   import interact from 'interactjs'
   import { fabric } from 'fabric'
 
-  export let app: App
   export let source: string
+
+  const dispatch = createEventDispatcher()
 
   let canvas: fabric.Canvas
   let canvasEl: HTMLCanvasElement
@@ -19,9 +20,6 @@
   }
 
   onMount(async () => {
-    const svgFile: TFile | null =
-      app.vault.getFiles().find(file => file.path === source) ?? null
-
     interact(resizer).draggable({
       listeners: {
         move(e) {
@@ -30,12 +28,8 @@
       },
     })
 
-    if (!svgFile) return
-
-    const svgSource = await app.vault.cachedRead(svgFile)
-
     const saved_svg = new DOMParser()
-      .parseFromString(svgSource, 'image/svg+xml')
+      .parseFromString(source, 'image/svg+xml')
       .querySelector('svg')
 
     const saved_height = saved_svg?.getAttribute('height')
@@ -48,7 +42,7 @@
 
     canvas.setWidth(800)
 
-    fabric.loadSVGFromString(svgSource, (results, options) => {
+    fabric.loadSVGFromString(source, (results, options) => {
       for (const res of results) {
         canvas.add(res)
       }
@@ -60,17 +54,9 @@
     canvas.freeDrawingBrush.width = 5
   })
 
-  const debouncedWrite = debounce(write, 2000, true)
-
   async function write() {
     console.log('writing...')
-
-    const svgFile: TFile | null =
-      app.vault.getFiles().find(file => file.path === source) ?? null
-
-    if (!svgFile) return
-
-    await app.vault.process(svgFile, _ => canvas.toSVG())
+    dispatch('save', canvas.toSVG())
   }
 </script>
 
