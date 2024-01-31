@@ -35,6 +35,7 @@
     const saved_height = saved_svg?.getAttribute('height')
     height = saved_height ? parseInt(saved_height) : height
 
+    // TODO: experiment with pixi.js
     canvas = new fabric.Canvas(canvasEl, {
       isDrawingMode: true,
       freeDrawingCursor: 'crosshair',
@@ -61,7 +62,7 @@
 </script>
 
 <div bind:this={container}>
-  <div class="toolbar">
+  <div class="toolbar" class:mobile={Platform.isMobile || Platform.isMobileApp}>
     <button
       on:click={() => {
         if (!canvas) return
@@ -82,7 +83,7 @@
 
 <style>
   canvas {
-    border: 1px solid red;
+    border: 1px solid var(--divider-color);
   }
 
   .resizer {
@@ -96,7 +97,7 @@
   }
 
   .resizer.taller {
-    height: 20px;
+    height: 15px;
   }
 
   .resizer:hover {
@@ -112,5 +113,13 @@
     top: -32px;
     left: 0;
     z-index: 999999;
+    background-color: var(--divider-color);
+    border-top-left-radius: var(--radius-s);
+    border-top-right-radius: var(--radius-s);
+    cursor: default;
+  }
+
+  .toolbar.mobile {
+    top: -8px;
   }
 </style>
