@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { type App, debounce, Platform } from 'obsidian'
+  import { type App, debounce, Platform, type TFile } from 'obsidian'
   import interact from 'interactjs'
   import { fabric } from 'fabric'
 
@@ -18,14 +18,9 @@
     canvas.setHeight(height)
   }
 
-  onMount(() => {
-    const saved_svg = new DOMParser()
-      .parseFromString(source, 'image/svg+xml')
-      .querySelector('svg')
-
-    console.log('width', container.parentElement.offsetWidth)
-    const saved_height = saved_svg?.getAttribute('height')
-    height = saved_height ? parseInt(saved_height) : height
+  onMount(async () => {
+    const svgFile: TFile | null =
+      app.vault.getFiles().find(file => file.path === source) ?? null
 
     interact(resizer).draggable({
       listeners: {
@@ -35,6 +30,17 @@
       },
     })
 
+    if (!svgFile) return
+
+    const svgSource = await app.vault.cachedRead(svgFile)
+
+    const saved_svg = new DOMParser()
+      .parseFromString(svgSource, 'image/svg+xml')
+      .querySelector('svg')
+
+    const saved_height = saved_svg?.getAttribute('height')
+    height = saved_height ? parseInt(saved_height) : height
+
     canvas = new fabric.Canvas(canvasEl, {
       isDrawingMode: true,
       freeDrawingCursor: 'crosshair',
@@ -42,7 +48,7 @@
 
     canvas.setWidth(800)
 
-    fabric.loadSVGFromString(source, (results, options) => {
+    fabric.loadSVGFromString(svgSource, (results, options) => {
       for (const res of results) {
         canvas.add(res)
       }
@@ -58,35 +64,28 @@
 
   async function write() {
     console.log('writing...')
-    const file = app.workspace.getActiveFile()!
 
-    await app.vault.process(file, content => {
-      const start_idx = content.indexOf('```obsidianDrawing') + 18
-      const end_idx = content.indexOf('```', start_idx)
+    const svgFile: TFile | null =
+      app.vault.getFiles().find(file => file.path === source) ?? null
 
-      const ary = Array.from(content)
-      const svg_text = canvas.toSVG()
-      ary.splice(start_idx, end_idx - start_idx, '\n', svg_text, '\n')
+    if (!svgFile) return
 
-      return ary.join('')
-    })
+    await app.vault.process(svgFile, _ => canvas.toSVG())
   }
 </script>
 
 <div bind:this={container}>
-  {#key source}
-    <div class="toolbar">
-      <button
-        on:click={() => {
-          if (!canvas) return
-          canvas.isDrawingMode = !canvas.isDrawingMode
-        }}>Toggle Drawing</button
-      >
-      <button on:click={() => canvas.setWidth(container.offsetWidth)}
-        >reset width</button
-      >
-    </div>
-  {/key}
+  <div class="toolbar">
+    <button
+      on:click={() => {
+        if (!canvas) return
+        canvas.isDrawingMode = !canvas.isDrawingMode
+      }}>Toggle Drawing</button
+    >
+    <button on:click={() => canvas.setWidth(container.offsetWidth)}
+      >reset width</button
+    >
+  </div>
   <canvas {height} bind:this={canvasEl} />
   <div
     bind:this={resizer}
