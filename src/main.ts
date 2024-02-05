@@ -8,6 +8,8 @@ import {
   type TFile,
 } from 'obsidian'
 import DrawingPlugin from './components/DrawingPlugin.svelte'
+import { initRust } from './utils/initRust'
+import { greet } from 'obsidian-drawing-rust'
 
 // interface MyPluginSettings {
 //   mySetting: string
@@ -23,6 +25,9 @@ export default class HelloWorldPlugin extends Plugin {
 
   async onload() {
     // await this.loadSettings()
+
+    await initRust()
+    greet()
 
     // This adds a settings tab so the user can configure various aspects of the plugin
     // this.addSettingTab(new SampleSettingTab(this.app, this))
