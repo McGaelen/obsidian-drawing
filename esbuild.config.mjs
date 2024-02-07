@@ -29,14 +29,14 @@ const context = await esbuild.context({
       name: 'obsidian-drawing-rust',
       setup(build) {
         // Make the Rust build re-run when changes happen
-        build.onResolve({ filter: /obsidian-drawing-rust/ }, async args => {
-          // console.log(args)
-          const files = await glob('./src-rust/src/**/*')
-          await exec(`npm run wasm-pack`)
-          return {
-            watchFiles: files,
-          }
-        })
+        // build.onResolve({ filter: /obsidian-drawing-rust/ }, async args => {
+        //   // console.log(args)
+        //   const files = await glob('./src-rust/src/**/*')
+        //   // await exec(`npm run wasm-pack`)
+        //   return {
+        //     watchFiles: files,
+        //   }
+        // })
 
         // build.onResolve({filter: /\.wasm$/}, _ => ({namespace: 'wasm'}))
         //

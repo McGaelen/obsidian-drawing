@@ -4,11 +4,11 @@ use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 extern "C" {
-    fn alert(s: &str);
+  fn alert(s: &str);
 }
 
 #[wasm_bindgen]
 pub fn greet() {
-    alert("Hello, wasm-obsidian-drawing!");
-    println!("hello from rust")
+  alert("Hello, wasm-obsidian-drawing!");
+  println!("hello from rust")
 }
