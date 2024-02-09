@@ -31,7 +31,7 @@
     }
   })
 
-  async function write() {
+  function write() {
     console.log('writing...')
     dispatch(
       'save',

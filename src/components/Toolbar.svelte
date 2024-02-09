@@ -11,6 +11,9 @@
 
 <style>
   .toolbar {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
     position: sticky;
     top: -32px;
     left: 0;
