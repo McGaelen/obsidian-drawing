@@ -2,6 +2,10 @@
   import { state } from '../stores/state'
   import { Eraser } from 'lucide-svelte'
   import paper from 'paper'
+  import { getContext } from 'svelte'
+  import type { HandwritingContext } from '../types'
+
+  const { state } = getContext<HandwritingContext>('handwriting-context')
 
   let isErasing = false
   state.registerTool(

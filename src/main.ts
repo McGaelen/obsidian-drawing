@@ -7,7 +7,7 @@ import {
   Plugin,
   type TFile,
 } from 'obsidian'
-import DrawingPlugin from './components/DrawingPlugin.svelte'
+import HandwritingPlugin from './components/HandwritingPlugin.svelte'
 
 // interface MyPluginSettings {
 //   mySetting: string
@@ -19,7 +19,7 @@ import DrawingPlugin from './components/DrawingPlugin.svelte'
 
 export default class HelloWorldPlugin extends Plugin {
   // settings: MyPluginSettings
-  sveltes: Map<string, DrawingPlugin> = new Map()
+  sveltes: Map<string, HandwritingPlugin> = new Map()
 
   async onload() {
     // await this.loadSettings()
@@ -72,7 +72,7 @@ export default class HelloWorldPlugin extends Plugin {
       this.sveltes.delete(filepath)
     }
 
-    const newRoot = new DrawingPlugin({
+    const newRoot = new HandwritingPlugin({
       target: el,
       props: { source },
     })

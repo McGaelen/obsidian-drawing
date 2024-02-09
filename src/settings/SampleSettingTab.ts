@@ -1,5 +1,5 @@
 import { App, PluginSettingTab, Setting } from 'obsidian'
-import HelloWorldPlugin from './main'
+import HelloWorldPlugin from '../main'
 
 export default class SampleSettingTab extends PluginSettingTab {
   plugin: HelloWorldPlugin

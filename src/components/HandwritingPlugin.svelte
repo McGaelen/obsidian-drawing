@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount } from 'svelte'
+  import { createEventDispatcher, onMount, setContext } from 'svelte'
   import paper from 'paper'
-  import { state } from '../stores/state'
+  import { StateStore } from '../stores/state'
   import Resizer from './Resizer.svelte'
   import Toolbar from './Toolbar.svelte'
   import { flatMapDeep } from 'lodash-es'
+  import type { HandwritingContext } from '../types'
 
   export let source: string
 
@@ -12,6 +13,13 @@
 
   let canvasEl: HTMLCanvasElement
   let height = 500
+  let state: StateStore
+
+  setContext<HandwritingContext>('handwriting-context', {
+    get state() {
+      return state
+    },
+  })
 
   onMount(() => {
     const saved_svg = new DOMParser()
@@ -21,7 +29,7 @@
     const saved_height = saved_svg?.getAttribute('height')
     height = saved_height ? parseInt(saved_height) : height
 
-    state.init(canvasEl)
+    state = new StateStore(canvasEl)
 
     if (saved_svg) {
       const item = paper.project.importSVG(saved_svg, { insert: false })
@@ -37,6 +45,7 @@
       'save',
       paper.project.exportSVG({
         asString: true,
+        bounds: 'content',
       }),
     )
   }
