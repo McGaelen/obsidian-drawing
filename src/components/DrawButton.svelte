@@ -1,10 +1,7 @@
 <script lang="ts">
+  import { state } from '../stores/state'
   import { PencilLine } from 'lucide-svelte'
   import paper from 'paper'
-  import { getContext } from 'svelte'
-  import type { HandwritingContext } from '../types'
-
-  const { state } = getContext<HandwritingContext>('handwriting-context')
 
   let path: paper.Path | null
   state.registerTool(

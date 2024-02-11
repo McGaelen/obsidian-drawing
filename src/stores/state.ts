@@ -1,45 +1,40 @@
-import { writable, type Readable, type Writable } from 'svelte/store'
-import paperApi from 'paper'
+import { writable } from 'svelte/store'
+import paper from 'paper'
 
 interface State {
-  paper?: typeof paperApi
+  paper?: typeof paper
   activeTool?: string
-  // @ts-expect-error no idea why
-  tools: Map<string, paperApi.Tool>
+  tools: Map<string, paper.Tool>
 }
 
 const initialState: State = {
   tools: new Map(),
 }
 
-export class StateStore implements Readable<State> {
-  subscribe: Readable<State>['subscribe']
-  private readonly update: Writable<State>['update']
+const { subscribe, update } = writable(initialState)
 
-  constructor(canvas: HTMLCanvasElement) {
-    const { subscribe, update } = writable(initialState)
-    this.subscribe = subscribe
-    this.update = update
+export const state = {
+  subscribe,
 
-    paperApi.setup(canvas)
-    this.update(val => ({ ...val, paper: paperApi }))
-  }
+  init(canvas: HTMLCanvasElement) {
+    paper.setup(canvas)
+    update(val => ({ ...val, paper }))
+  },
 
-  // @ts-expect-error no idea why
-  registerTool(name: string, tool: paperApi.Tool) {
-    this.update(state => {
+  registerTool(name: string, tool: paper.Tool) {
+    update(state => {
       state.tools.set(name, tool)
       return state
     })
-  }
+  },
 
   activateTool(name: string) {
-    this.update(state => {
+    update(state => {
       if (state.tools.has(name)) {
         state.tools.get(name)!.activate()
         state.activeTool = name
       }
       return state
     })
-  }
+  },
 }
