@@ -1,33 +1,19 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte'
-  import { Platform } from 'obsidian'
-  import interact from 'interactjs'
-  import { fabric } from 'fabric'
+  import paper from 'paper'
+  import { state } from '../stores/state'
+  import Resizer from './Resizer.svelte'
+  import Toolbar from './Toolbar.svelte'
+  import { flatMapDeep } from 'lodash-es'
 
   export let source: string
 
   const dispatch = createEventDispatcher()
 
-  let canvas: fabric.Canvas
   let canvasEl: HTMLCanvasElement
-  let resizer: HTMLDivElement
-  let container: HTMLDivElement
-
   let height = 500
 
-  $: if (canvas) {
-    canvas.setHeight(height)
-  }
-
-  onMount(async () => {
-    interact(resizer).draggable({
-      listeners: {
-        move(e) {
-          height += e.dy
-        },
-      },
-    })
-
+  onMount(() => {
     const saved_svg = new DOMParser()
       .parseFromString(source, 'image/svg+xml')
       .querySelector('svg')
@@ -35,91 +21,37 @@
     const saved_height = saved_svg?.getAttribute('height')
     height = saved_height ? parseInt(saved_height) : height
 
-    // TODO: experiment with pixi.js
-    canvas = new fabric.Canvas(canvasEl, {
-      isDrawingMode: true,
-      freeDrawingCursor: 'crosshair',
-    })
+    state.init(canvasEl)
 
-    canvas.setWidth(800)
-
-    fabric.loadSVGFromString(source, (results, options) => {
-      for (const res of results) {
-        canvas.add(res)
-      }
-      canvas.renderAll()
-    })
-
-    canvas.on('mouse:up', _ => write())
-    canvas.freeDrawingBrush.color = '#ffffff'
-    canvas.freeDrawingBrush.width = 5
+    if (saved_svg) {
+      const item = paper.project.importSVG(saved_svg, { insert: false })
+      flatMapDeep(item.children, val => val.children).forEach(item =>
+        item?.addTo(paper.project),
+      )
+    }
   })
 
   async function write() {
     console.log('writing...')
-    dispatch('save', canvas.toSVG())
+    dispatch(
+      'save',
+      paper.project.exportSVG({
+        asString: true,
+      }),
+    )
   }
 </script>
 
-<div bind:this={container}>
-  <div class="toolbar" class:mobile={Platform.isMobile || Platform.isMobileApp}>
-    <button
-      on:click={() => {
-        if (!canvas) return
-        canvas.isDrawingMode = !canvas.isDrawingMode
-      }}>Toggle Drawing</button
-    >
-    <button on:click={() => canvas.setWidth(container.offsetWidth)}
-      >reset width</button
-    >
-  </div>
-  <canvas {height} bind:this={canvasEl} />
-  <div
-    bind:this={resizer}
-    class="resizer"
-    class:taller={Platform.isMobile || Platform.isMobileApp}
-  />
+<div>
+  <Toolbar />
+  <canvas {height} bind:this={canvasEl} on:pointerup={write} />
+  <Resizer bind:height />
 </div>
 
 <style>
   canvas {
     border: 1px solid var(--divider-color);
-  }
-
-  .resizer {
-    transition: all;
-    transition-duration: 200ms;
-    height: 5px;
-    background-color: var(--divider-color);
-    border-radius: var(--radius-s);
-    cursor: row-resize !important;
-    touch-action: none;
-  }
-
-  .resizer.taller {
-    height: 15px;
-  }
-
-  .resizer:hover {
-    background-color: var(--interactive-accent);
-  }
-
-  button:active {
-    background-color: red;
-  }
-
-  .toolbar {
-    position: sticky;
-    top: -32px;
-    left: 0;
-    z-index: 999999;
-    background-color: var(--divider-color);
-    border-top-left-radius: var(--radius-s);
-    border-top-right-radius: var(--radius-s);
-    cursor: default;
-  }
-
-  .toolbar.mobile {
-    top: -8px;
+    cursor: crosshair;
+    width: 100%;
   }
 </style>
