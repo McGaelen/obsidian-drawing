@@ -38,8 +38,6 @@ export default class HelloWorldPlugin extends Plugin {
 
         const position = editor.getCursor()
         editor.replaceRange('\n```drawing\n' + filepath + '\n```\n', position)
-
-        self.app.workspace.updateOptions()
       },
     })
 
@@ -76,10 +74,9 @@ export default class HelloWorldPlugin extends Plugin {
       target: el,
       props: { source },
     })
-    newRoot.$on(
-      'save',
-      async ({ detail }) => await this.app.vault.process(svgFile, _ => detail),
-    )
+    newRoot.$on('save', async ({ detail }) => {
+      await this.app.vault.process(svgFile, _ => detail)
+    })
     this.sveltes.set(filepath, newRoot)
   }
 
