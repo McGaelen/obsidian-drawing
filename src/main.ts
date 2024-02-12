@@ -1,86 +1,28 @@
 // noinspection JSUnusedGlobalSymbols
-import {
-  Editor,
-  type MarkdownFileInfo,
-  type MarkdownPostProcessorContext,
-  MarkdownView,
-  Plugin,
-  type TFile,
-} from 'obsidian'
-import DrawingPlugin from './components/DrawingPlugin.svelte'
+import { Plugin } from 'obsidian'
+import { HandwritingView } from './view'
 
-// interface MyPluginSettings {
-//   mySetting: string
-// }
-
-// const DEFAULT_SETTINGS: MyPluginSettings = {
-//   mySetting: 'default',
-// }
-
-export default class HelloWorldPlugin extends Plugin {
-  // settings: MyPluginSettings
-  sveltes: Map<string, DrawingPlugin> = new Map()
-
+export default class HandwritingPlugin extends Plugin {
   async onload() {
-    // await this.loadSettings()
-
     // This adds a settings tab so the user can configure various aspects of the plugin
     // this.addSettingTab(new SampleSettingTab(this.app, this))
 
-    const self = this
-    this.addCommand({
-      id: 'add-drawing',
-      name: 'Add Drawing to current document',
-      editorCallback(editor: Editor, ctx: MarkdownView | MarkdownFileInfo) {
-        const filepath = `svg/${crypto.randomUUID()}.svg`
+    this.addRibbonIcon('pen', 'Add Drawing to current file', async () => {
+      this.app.workspace.detachLeavesOfType(HandwritingView.type)
 
-        self.app.vault.create(filepath, '')
+      await this.app.workspace.getLeaf(false).setViewState({
+        type: HandwritingView.type,
+        active: true,
+      })
 
-        const position = editor.getCursor()
-        editor.replaceRange('\n```drawing\n' + filepath + '\n```\n', position)
-
-        self.app.workspace.updateOptions()
-      },
+      this.app.workspace.revealLeaf(
+        this.app.workspace.getLeavesOfType(HandwritingView.type)[0],
+      )
     })
 
-    this.addRibbonIcon('pen', 'Add Drawing to current file', () => {
-      // @ts-expect-error WARNING: this is not in the public api!!!
-      this.app.commands.executeCommandById('obsidian-drawing:add-drawing')
-    })
+    this.registerExtensions(['handwriting'], HandwritingView.type)
 
-    this.registerMarkdownCodeBlockProcessor(
-      'drawing',
-      this.drawingBlockProcessor.bind(this),
-    )
-  }
-
-  async drawingBlockProcessor(
-    filepath: string,
-    el: HTMLElement,
-    ctx: MarkdownPostProcessorContext,
-  ) {
-    console.log('RUNNING!!! ITS GONNA SCROLL!!!!!!!!', this)
-
-    const svgFile: TFile | undefined = app.vault
-      .getFiles()
-      .find(file => file.path === filepath.trim())
-    if (!svgFile) return
-
-    const source = await app.vault.cachedRead(svgFile)
-    if (this.sveltes.has(filepath)) {
-      this.sveltes.get(filepath)!.$destroy()
-      this.sveltes.delete(filepath)
-    }
-
-    const newRoot = new DrawingPlugin({
-      target: el,
-      props: { source },
-    })
-    newRoot.$on(
-      'save',
-      async ({ detail }) => await this.app.vault.process(svgFile, _ => detail),
-    )
-    this.sveltes.set(filepath, newRoot)
+    this.registerView(HandwritingView.type, leaf => new HandwritingView(leaf))
   }
 
   // async loadSettings() {

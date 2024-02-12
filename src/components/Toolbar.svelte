@@ -13,6 +13,9 @@
   .toolbar {
     position: sticky;
     top: -32px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
     left: 0;
     z-index: 999999;
     background-color: var(--divider-color);

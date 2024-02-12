@@ -11,6 +11,7 @@
         path = new paper.Path()
         path.strokeColor = new paper.Color('#ffffff')
         path.strokeWidth = 5
+        path.strokeCap = 'round'
         path.moveTo(e.point)
       },
       mousemove(e: paper.MouseEvent) {

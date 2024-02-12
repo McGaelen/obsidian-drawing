@@ -1,12 +1,17 @@
 import { App, PluginSettingTab, Setting } from 'obsidian'
 import HelloWorldPlugin from './main'
 
-export default class SampleSettingTab extends PluginSettingTab {
-  plugin: HelloWorldPlugin
+interface MyPluginSettings {
+  mySetting: string
+}
 
-  constructor(app: App, plugin: HelloWorldPlugin) {
+const DEFAULT_SETTINGS: MyPluginSettings = {
+  mySetting: 'default',
+}
+
+export default class Settings extends PluginSettingTab {
+  constructor(app: App, private plugin: HelloWorldPlugin) {
     super(app, plugin)
-    this.plugin = plugin
   }
 
   display(): void {

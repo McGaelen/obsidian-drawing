@@ -2,7 +2,6 @@
   import { createEventDispatcher, onMount } from 'svelte'
   import paper from 'paper'
   import { state } from '../stores/state'
-  import Resizer from './Resizer.svelte'
   import Toolbar from './Toolbar.svelte'
   import { flatMapDeep } from 'lodash-es'
 
@@ -13,7 +12,7 @@
   let canvasEl: HTMLCanvasElement
   let height = 500
 
-  onMount(() => {
+  $: if (source && canvasEl) {
     const saved_svg = new DOMParser()
       .parseFromString(source, 'image/svg+xml')
       .querySelector('svg')
@@ -29,28 +28,30 @@
         item?.addTo(paper.project),
       )
     }
-  })
+  }
 
-  async function write() {
+  export function getSource(): string {
+    return source
+  }
+
+  function write() {
     console.log('writing...')
     dispatch(
       'save',
       paper.project.exportSVG({
         asString: true,
-      }),
+      }) ?? '',
     )
   }
 </script>
 
 <div>
   <Toolbar />
-  <canvas {height} bind:this={canvasEl} on:pointerup={write} />
-  <Resizer bind:height />
+  <canvas {height} bind:this={canvasEl} on:pointerup={write} resize/>
 </div>
 
 <style>
   canvas {
-    border: 1px solid var(--divider-color);
     cursor: crosshair;
     width: 100%;
   }
