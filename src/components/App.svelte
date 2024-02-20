@@ -5,22 +5,30 @@
   import Toolbar from './Toolbar.svelte'
   import { flatMapDeep } from 'lodash-es'
 
-  export let source: string
-
   const dispatch = createEventDispatcher()
 
+  let source = ''
   let canvasEl: HTMLCanvasElement
   let height = 500
 
-  $: if (source && canvasEl) {
+  onMount(async () => {
+    state.init(canvasEl)
+  })
+
+  export function setSource(input: string) {
+    if (source) {
+      source = input
+      return
+    }
+
+    source = input
+
     const saved_svg = new DOMParser()
       .parseFromString(source, 'image/svg+xml')
       .querySelector('svg')
 
     const saved_height = saved_svg?.getAttribute('height')
     height = saved_height ? parseInt(saved_height) : height
-
-    state.init(canvasEl)
 
     if (saved_svg) {
       const item = paper.project.importSVG(saved_svg, { insert: false })
@@ -47,7 +55,7 @@
 
 <div>
   <Toolbar />
-  <canvas {height} bind:this={canvasEl} on:pointerup={write} resize/>
+  <canvas {height} bind:this={canvasEl} on:pointerup={write} resize />
 </div>
 
 <style>
