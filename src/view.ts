@@ -2,7 +2,6 @@ import { TextFileView } from 'obsidian'
 import App from './components/App.svelte'
 
 export class HandwritingView extends TextFileView {
-  
   static type = 'handwriting-view'
 
   private svelte: App
@@ -12,13 +11,10 @@ export class HandwritingView extends TextFileView {
 
     this.svelte = new App({
       target: this.contentEl,
-      props: {
-        source: '',
-      },
     })
 
-    this.svelte.$on('save', ({detail}) => {
-      this.setViewData(detail, true)
+    this.svelte.$on('save', ({ detail }) => {
+      // this.setViewData(detail, true)
       this.requestSave()
     })
   }
@@ -36,18 +32,17 @@ export class HandwritingView extends TextFileView {
   }
 
   getViewData(): string {
+    console.log('getViewData')
     return this.svelte.getSource()
   }
 
   setViewData(data: string, clear: boolean): void {
-    this.svelte.$set({
-      source: clear ? data : this.svelte.getSource() + data
-    })
+    console.log('setViewData')
+    this.svelte.setSource(clear ? data : this.svelte.getSource() + data)
   }
 
   clear(): void {
-    this.svelte.$set({
-      source: ''
-    })
+    console.log('clear')
+    this.svelte.setSource('')
   }
 }

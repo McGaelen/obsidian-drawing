@@ -1,12 +1,9 @@
 <script lang="ts">
   import { Platform } from 'obsidian'
-  import EraseButton from './EraseButton.svelte'
-  import DrawButton from './DrawButton.svelte'
 </script>
 
 <div class="toolbar" class:mobile={Platform.isMobile || Platform.isMobileApp}>
-  <DrawButton />
-  <EraseButton />
+  placeholder
 </div>
 
 <style>
