@@ -1,10 +1,12 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount } from 'svelte'
+  import { createEventDispatcher, onDestroy, onMount } from 'svelte'
   import Toolbar from './Toolbar.svelte'
   import Path from './Path.svelte'
   import Resizer from './Resizer.svelte'
 
   const dispatch = createEventDispatcher()
+
+  export let initialSource: string
 
   let svgEl: SVGElement
   let height = 500
@@ -25,7 +27,11 @@
     svgEl.addEventListener('touchstart', handle_touch)
     svgEl.addEventListener('touchmove', handle_touch)
     /** END WEIRD AND STUPID ZONE */
+
+    if (initialSource) setSource(initialSource)
   })
+
+  onDestroy(() => console.log('destroying'))
 
   export function getSource(): string {
     return svgEl.outerHTML
