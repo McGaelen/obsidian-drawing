@@ -3,7 +3,7 @@
   import { onMount } from 'svelte'
   import interact from 'interactjs'
 
-  export let height: number
+  let { height = $bindable() }: { height: number } = $props()
 
   let resizer: HTMLDivElement
 
@@ -23,7 +23,7 @@
   bind:this={resizer}
   class="resizer"
   class:taller={Platform.isMobile || Platform.isMobileApp}
-/>
+></div>
 
 <style>
   .resizer {

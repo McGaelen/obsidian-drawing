@@ -1,15 +1,16 @@
 <script lang="ts">
-  import { createEventDispatcher, onDestroy, onMount } from 'svelte'
+  import { mount, onDestroy, onMount } from 'svelte'
   import Toolbar from './Toolbar.svelte'
   import Path from './Path.svelte'
   import Resizer from './Resizer.svelte'
 
-  const dispatch = createEventDispatcher()
-
-  export let initialSource: string
+  let {
+    initialSource,
+    onchange,
+  }: { initialSource: string; onchange: (contents: string) => void } = $props()
 
   let svgEl: SVGElement
-  let height = 500
+  let height = $state(500)
   let currentPath: Path | null = null
   let penCoords: { x: number; y: number; pressure: number } | null = null
 
@@ -50,11 +51,6 @@
     }
   }
 
-  function write() {
-    console.log('writing...')
-    dispatch('save', svgEl.outerHTML)
-  }
-
   function handle(
     handler?: (e: PointerEvent) => void,
   ): (e: PointerEvent) => void {
@@ -80,19 +76,19 @@
   <svg
     {height}
     bind:this={svgEl}
-    on:pointerdown={handle(e => {
+    onpointerdown={handle(e => {
       penCoords = { x: e.offsetX, y: e.offsetY, pressure: e.pressure }
-      currentPath = new Path({
+      currentPath = mount(Path, {
         target: svgEl,
         props: { origin: { x: penCoords.x, y: penCoords.y } },
       })
     })}
-    on:pointerup={handle(() => {
+    onpointerup={handle(() => {
       currentPath = null
-      write()
+      onchange(svgEl.outerHTML)
     })}
-    on:pointerleave={handle(() => (currentPath = null))}
-    on:pointermove={handle(e => {
+    onpointerleave={handle(() => (currentPath = null))}
+    onpointermove={handle(e => {
       penCoords = { x: e.offsetX, y: e.offsetY, pressure: e.pressure }
       currentPath?.lineTo(penCoords.x, penCoords.y)
     })}

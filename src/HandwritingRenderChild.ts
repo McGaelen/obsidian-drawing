@@ -1,13 +1,17 @@
 import { MarkdownRenderChild } from 'obsidian'
 import App from './components/App.svelte'
+import { unmount } from 'svelte'
 
 export class HandwritingRenderChild extends MarkdownRenderChild {
-  constructor(private svelteComponentInstance: App, containerEl: HTMLElement) {
+  constructor(
+    private svelteComponentInstance: App,
+    containerEl: HTMLElement,
+  ) {
     super(containerEl)
   }
 
   public unload() {
-    this.svelteComponentInstance.$destroy()
+    unmount(this.svelteComponentInstance)
     super.unload()
   }
 }
