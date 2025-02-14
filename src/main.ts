@@ -15,9 +15,18 @@ export default class HandwritingPlugin extends Plugin {
     this.registerMarkdownCodeBlockProcessor(
       'drawing',
       async (source, el, ctx) => {
-        console.log('RUNNING!!!', { source, el, ctx })
+        let options: { filename: string }
+        try {
+          options = JSON.parse(source)
+        } catch (e) {
+          console.error(e)
+          el.textContent = 'Failed to parse options JSON'
+          return
+        }
 
-        const fileOrFolder = this.app.vault.getAbstractFileByPath(source)
+        const fileOrFolder = this.app.vault.getAbstractFileByPath(
+          options.filename,
+        )
 
         if (fileOrFolder instanceof TFile) {
           const contents = await this.app.vault.read(fileOrFolder)
@@ -26,7 +35,8 @@ export default class HandwritingPlugin extends Plugin {
             target: el,
             props: {
               initialSource: contents,
-              onchange: contents => this.app.vault.modify(fileOrFolder, contents),
+              onchange: contents =>
+                this.app.vault.modify(fileOrFolder, contents),
             },
           })
 
@@ -42,13 +52,19 @@ export default class HandwritingPlugin extends Plugin {
     this.addCommand({
       id: 'add-drawing',
       name: 'Add Drawing to current document',
-      editorCallback(editor: Editor, _ctx: MarkdownView | MarkdownFileInfo) {
-        const filepath = `svg/${crypto.randomUUID()}.svg`
+      async editorCallback(
+        editor: Editor,
+        _ctx: MarkdownView | MarkdownFileInfo,
+      ) {
+        const filename = `svg/${crypto.randomUUID()}.svg`
 
-        self.app.vault.create(filepath, '')
+        await self.app.vault.create(filename, '')
 
-        const position = editor.getCursor()
-        editor.replaceRange('\n```drawing\n' + filepath + '\n```\n', position)
+        const optionsStr = JSON.stringify({ filename })
+        editor.replaceRange(
+          '\n```drawing\n' + optionsStr + '\n```\n',
+          editor.getCursor(),
+        )
       },
     })
 
