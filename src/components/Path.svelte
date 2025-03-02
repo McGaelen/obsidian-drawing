@@ -9,4 +9,4 @@
   }
 </script>
 
-<path {d} />
+<path {d} stroke="url(#pencil)" stroke-width="10px" />

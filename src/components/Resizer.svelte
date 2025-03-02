@@ -12,7 +12,6 @@
       listeners: {
         move(e) {
           height += e.dy
-          console.log(height)
         },
       },
     })

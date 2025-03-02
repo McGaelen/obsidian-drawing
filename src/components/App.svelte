@@ -3,6 +3,7 @@
   import Toolbar from './Toolbar.svelte'
   import Path from './Path.svelte'
   import Resizer from './Resizer.svelte'
+  import { pencil } from '../assets/assets'
 
   let {
     initialSource,
@@ -10,9 +11,12 @@
   }: { initialSource: string; onchange: (contents: string) => void } = $props()
 
   let svgEl: SVGElement
-  let height = $state(500)
+  let svgResizeObs: ResizeObserver
   let currentPath: Path | null = null
-  let penCoords: { x: number; y: number; pressure: number } | null = null
+
+  let height = $state(500)
+  let currentScale = $state(1)
+  let hideCursor = $state(false)
 
   onMount(() => {
     /**
@@ -30,9 +34,17 @@
     /** END WEIRD AND STUPID ZONE */
 
     if (initialSource) setSource(initialSource)
+
+    svgResizeObs = new ResizeObserver(_entries => {
+      currentScale = 1000 / svgEl.clientWidth
+    })
+    svgResizeObs.observe(svgEl)
   })
 
-  onDestroy(() => console.log('destroying'))
+  onDestroy(() => {
+    console.log('destroying')
+    svgResizeObs.disconnect()
+  })
 
   export function getSource(): string {
     return svgEl.outerHTML
@@ -71,33 +83,49 @@
   }
 </script>
 
-<div>
+<!--   style="left: 50%; translate: -50%; width: 1000px; position: relative;" -->
+<div class="obsidian-drawing-markdown-renderer">
   <Toolbar />
   <svg
-    {height}
     bind:this={svgEl}
+    viewBox="0 0 1000 {height}"
+    style={hideCursor ? 'cursor: none;' : ''}
     onpointerdown={handle(e => {
-      penCoords = { x: e.offsetX, y: e.offsetY, pressure: e.pressure }
+      if (e.pointerType === 'pen') {
+        hideCursor = true
+      } else {
+        hideCursor = false
+      }
       currentPath = mount(Path, {
         target: svgEl,
-        props: { origin: { x: penCoords.x, y: penCoords.y } },
+        props: {
+          origin: { x: e.offsetX * currentScale, y: e.offsetY * currentScale },
+        },
       })
     })}
     onpointerup={handle(() => {
       currentPath = null
       onchange(svgEl.outerHTML)
     })}
-    onpointerleave={handle(() => (currentPath = null))}
+    onpointerleave={handle(() => {
+      currentPath = null
+    })}
     onpointermove={handle(e => {
-      penCoords = { x: e.offsetX, y: e.offsetY, pressure: e.pressure }
-      currentPath?.lineTo(penCoords.x, penCoords.y)
+      currentPath?.lineTo(e.offsetX * currentScale, e.offsetY * currentScale)
     })}
     stroke-width="3"
-    stroke="#FFFFFF"
     fill="none"
     stroke-linecap="round"
     stroke-linejoin="round"
-  />
+  >
+    <defs>
+      <pattern id="pencil" width="10" height="10">
+        <image
+          href="https://c1.staticflickr.com/1/182/404542445_61cfc5f1f8_b.jpg"
+        />
+      </pattern>
+    </defs>
+  </svg>
   <Resizer bind:height />
 </div>
 
