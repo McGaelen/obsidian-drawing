@@ -6,9 +6,11 @@ import {
   Plugin,
   TFile,
 } from 'obsidian'
-import App from './components/App.svelte'
+// import App from './components/App.svelte'
 import { HandwritingRenderChild } from './HandwritingRenderChild'
-import { mount } from 'svelte'
+// import { mount } from 'svelte'
+import { createRoot } from 'react-dom/client'
+import {App} from './react/App'
 
 export default class HandwritingPlugin extends Plugin {
   async onload() {
@@ -31,16 +33,10 @@ export default class HandwritingPlugin extends Plugin {
         if (fileOrFolder instanceof TFile) {
           const contents = await this.app.vault.read(fileOrFolder)
 
-          const svelteRoot = mount(App, {
-            target: el,
-            props: {
-              initialSource: contents,
-              onchange: contents =>
-                this.app.vault.modify(fileOrFolder, contents),
-            },
-          })
+          const reactRoot = createRoot(el)
+          reactRoot.render(App())
 
-          ctx.addChild(new HandwritingRenderChild(svelteRoot, el))
+          ctx.addChild(new HandwritingRenderChild(reactRoot, el))
         } else {
           el.textContent =
             'Provided filepath does not exist or is not a valid file.'

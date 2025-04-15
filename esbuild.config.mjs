@@ -2,8 +2,6 @@ import 'dotenv/config'
 import esbuild from 'esbuild'
 import process from 'node:process'
 import builtins from 'builtin-modules'
-import esbuildSvelte from 'esbuild-svelte'
-import sveltePreprocess from 'svelte-preprocess'
 import { copy } from 'esbuild-plugin-copy'
 
 const banner = `/*
@@ -16,12 +14,6 @@ const prod = process.argv[2] === 'production'
 
 const context = await esbuild.context({
   plugins: [
-    esbuildSvelte({
-      compilerOptions: {
-        css: 'injected',
-      },
-      preprocess: sveltePreprocess({ typescript: true }),
-    }),
     copy({
       resolveFrom: 'cwd',
       assets: [
@@ -30,11 +22,11 @@ const context = await esbuild.context({
           to: `${process.env.DEV_VAULT_DIRECTORY}/.obsidian/plugins/obsidian-drawing/manifest.json`,
         },
         {
-          from: 'main.js',
+          from: './dist/main.js',
           to: `${process.env.DEV_VAULT_DIRECTORY}/.obsidian/plugins/obsidian-drawing/main.js`,
         },
         {
-          from: 'styles.css',
+          from: './dist/styles.css',
           to: `${process.env.DEV_VAULT_DIRECTORY}/.obsidian/plugins/obsidian-drawing/styles.css`,
         },
       ],
@@ -43,7 +35,7 @@ const context = await esbuild.context({
   banner: {
     js: banner,
   },
-  entryPoints: ['./src/main.ts'],
+  entryPoints: [{in:'./src/main.ts', out: 'main'}, './styles.css'],
   bundle: true,
   external: [
     'obsidian',
@@ -66,7 +58,7 @@ const context = await esbuild.context({
   logLevel: 'info',
   sourcemap: prod ? false : 'inline',
   treeShaking: true,
-  outfile: 'main.js',
+  outdir: 'dist',
 })
 
 if (prod) {
