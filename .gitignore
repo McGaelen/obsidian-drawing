@@ -24,3 +24,4 @@ data.json
 .env
 
 packages/
+dist
