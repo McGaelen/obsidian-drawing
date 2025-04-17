@@ -11,6 +11,7 @@ import { HandwritingRenderChild } from './HandwritingRenderChild'
 // import { mount } from 'svelte'
 import { createRoot } from 'react-dom/client'
 import {App} from './react/App'
+import type { TLEditorSnapshot } from 'tldraw'
 
 export default class HandwritingPlugin extends Plugin {
   async onload() {
@@ -33,8 +34,20 @@ export default class HandwritingPlugin extends Plugin {
         if (fileOrFolder instanceof TFile) {
           const contents = await this.app.vault.read(fileOrFolder)
 
+          let initialState: TLEditorSnapshot | undefined = undefined
+          try {
+            initialState = JSON.parse(contents)
+          } catch (e) {
+            console.warn(e, 'Failed to parse tldraw file; creating new one.')
+          }
+
           const reactRoot = createRoot(el)
-          reactRoot.render(App())
+          reactRoot.render(App({
+            initialState,
+            onchange: (snapshot) => {
+              this.app.vault.modify(fileOrFolder, JSON.stringify(snapshot))
+            }
+          }))
 
           ctx.addChild(new HandwritingRenderChild(reactRoot, el))
         } else {
@@ -52,7 +65,7 @@ export default class HandwritingPlugin extends Plugin {
         editor: Editor,
         _ctx: MarkdownView | MarkdownFileInfo,
       ) {
-        const filename = `svg/${crypto.randomUUID()}.svg`
+        const filename = `tldraw/${crypto.randomUUID()}.tldraw`
 
         await self.app.vault.create(filename, '')
 
