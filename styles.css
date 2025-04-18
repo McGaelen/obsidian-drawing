@@ -18,3 +18,16 @@ If your plugin does not need CSS, delete this file.
   word-break: unset;
 }*/
 @import 'tldraw/tldraw.css';
+
+.cm-preview-code-block.cm-embed-block.markdown-rendered:has(.block-language-drawing) {
+  contain: style !important;
+
+  &:hover {
+    overflow: visible !important;
+    border: none !important;
+  }
+
+  .edit-block-button {
+    display: none !important;
+  }
+}

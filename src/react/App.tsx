@@ -7,12 +7,14 @@ import {
 } from 'tldraw'
 import { debounce } from 'lodash-es'
 import { Background } from './Background'
+import { SetDarkMode } from './SetDarkMode'
+import { HandwritingContainer } from './HandwritingContainer'
 
 export function App({ initialState, onchange }: {initialState?: TLEditorSnapshot, onchange: (snapshot: TLEditorSnapshot) => void }) {
-  const onchangeDebounced = debounce((editor: Editor) => {
-    console.log('hello')
-    onchange(editor.getSnapshot())
-  }, 1000)
+  const onchangeDebounced = debounce(
+    (editor: Editor) => onchange(editor.getSnapshot()),
+    1000 // 1 second
+  )
 
   const components: TLComponents = {
     Background,
@@ -20,15 +22,15 @@ export function App({ initialState, onchange }: {initialState?: TLEditorSnapshot
   
   const onTldrawMount: TLOnMountHandler = editor => {
     editor.sideEffects.registerAfterChangeHandler('shape', () => {
-// console.log('shape')
       onchangeDebounced(editor)
     })
   }
+
   return (
-    <div
-      style={{ position: 'relative', inset: 0, height: '500px', width: '100%' }}
-    >
-      <Tldraw onMount={onTldrawMount} snapshot={initialState} components={components} />
-    </div>
+    <HandwritingContainer>
+      <Tldraw onMount={onTldrawMount} snapshot={initialState} components={components} >
+        <SetDarkMode />
+      </Tldraw>
+    </HandwritingContainer>
   )
 }
