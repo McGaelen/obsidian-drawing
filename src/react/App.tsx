@@ -9,6 +9,7 @@ import { debounce } from 'lodash-es'
 import { Background } from './Background'
 import { SetDarkMode } from './SetDarkMode'
 import { HandwritingContainer } from './HandwritingContainer'
+import { SetCameraOptions } from './SetCameraOptions'
 
 export function App({ initialState, onchange }: {initialState?: TLEditorSnapshot, onchange: (snapshot: TLEditorSnapshot) => void }) {
   const onchangeDebounced = debounce(
@@ -28,8 +29,13 @@ export function App({ initialState, onchange }: {initialState?: TLEditorSnapshot
 
   return (
     <HandwritingContainer>
-      <Tldraw onMount={onTldrawMount} snapshot={initialState} components={components}>
+      <Tldraw
+        onMount={onTldrawMount}
+        snapshot={initialState}
+        components={components}
+      >
         <SetDarkMode />
+        <SetCameraOptions />
       </Tldraw>
     </HandwritingContainer>
   )
