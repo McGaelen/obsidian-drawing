@@ -18,7 +18,7 @@ export function SetDarkMode() {
 
 function setDarkMode(editor: Editor) {
   if (document.body.classList.contains('theme-dark')) {
-    editor.user.updateUserPreferences({ colorScheme: 'light' })
+    editor.user.updateUserPreferences({ colorScheme: 'dark' })
   } else {
     editor.user.updateUserPreferences({ colorScheme: 'light' })
   }
