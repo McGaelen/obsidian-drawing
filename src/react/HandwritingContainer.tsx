@@ -1,4 +1,6 @@
 import { type PropsWithChildren, useEffect, useState } from 'react'
+import { fromResizeObserver } from '../utils/fromResizeObserver'
+import { throttleTime } from 'rxjs'
 
 export function HandwritingContainer({children}: PropsWithChildren) {
   let [maxWidth, setMaxWidth] = useState(0)
@@ -7,22 +9,23 @@ export function HandwritingContainer({children}: PropsWithChildren) {
   if (!cm_scroller) {
     return <>
       <h1>Couldn't find the `.cm-scroller` element!</h1>
-      <p>This plugin needs to be mounted by the Obsidian Plugin!</p>
+      <p>This react app needs to be mounted by an Obsidian Plugin!</p>
     </>
   }
 
-  const resizeObs = new ResizeObserver(() => {
-    setMaxWidth(cm_scroller.clientWidth)
-  })
-  resizeObs.observe(cm_scroller)
+  const {unsubscribe} = fromResizeObserver(cm_scroller)
+    .pipe(throttleTime(100))
+    .subscribe(_ => {
+      setMaxWidth(cm_scroller.clientWidth - 100)
+    })
 
-  useEffect(() => () => resizeObs.disconnect(), [])
+  useEffect(() => () => unsubscribe(), [])
 
   return (
     <div
       style={{
         position: 'relative',
-        height: '700px',
+        height: '500px',
         width: `${maxWidth}px`,
         left: '50%',
         translate: '-50%',

@@ -31,6 +31,7 @@
     "prettier-plugin-svelte": "^3.3.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "rxjs": "^7.8.2",
     "svelte": "5.x",
     "svelte-preprocess": "6.x",
     "tldraw": "^3.11.1",

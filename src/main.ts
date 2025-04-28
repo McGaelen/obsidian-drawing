@@ -6,9 +6,7 @@ import {
   Plugin,
   TFile,
 } from 'obsidian'
-// import App from './components/App.svelte'
 import { HandwritingRenderChild } from './HandwritingRenderChild'
-// import { mount } from 'svelte'
 import { createRoot } from 'react-dom/client'
 import {App} from './react/App'
 import type { TLEditorSnapshot } from 'tldraw'

@@ -1,20 +1,24 @@
 import { type Editor, useEditor } from 'tldraw'
 import { useEffect } from 'react'
+import { fromMutationObserver } from '../utils/fromMutationObserver'
 
 export function SetDarkMode() {
   const editor = useEditor()
-  const mutObs = new MutationObserver(_ => setDarkMode(editor))
-  mutObs.observe(document.body, { attributes: true, })
+  setDarkMode(editor)
 
-  // Disconnect MutationObserver when component unmounts
-  useEffect(() => () => mutObs.disconnect(), [])
+  const {unsubscribe} = fromMutationObserver(document.body, { attributes: true })
+    .subscribe(_ => {
+      setDarkMode(editor)
+    })
+
+  useEffect(() => () => unsubscribe(), [])
 
   return <></>
 }
 
 function setDarkMode(editor: Editor) {
   if (document.body.classList.contains('theme-dark')) {
-    editor.user.updateUserPreferences({ colorScheme: 'dark' })
+    editor.user.updateUserPreferences({ colorScheme: 'light' })
   } else {
     editor.user.updateUserPreferences({ colorScheme: 'light' })
   }

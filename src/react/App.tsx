@@ -28,7 +28,7 @@ export function App({ initialState, onchange }: {initialState?: TLEditorSnapshot
 
   return (
     <HandwritingContainer>
-      <Tldraw onMount={onTldrawMount} snapshot={initialState} components={components} >
+      <Tldraw onMount={onTldrawMount} snapshot={initialState} components={components}>
         <SetDarkMode />
       </Tldraw>
     </HandwritingContainer>
