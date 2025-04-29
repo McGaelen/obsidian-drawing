@@ -17,15 +17,10 @@ If your plugin does not need CSS, delete this file.
 
   &:hover {
     overflow: visible !important;
-    border: none !important;
-
+    box-shadow: none !important;
   }
 
   .edit-block-button {
     display: none !important;
   }
-}
-
-.block-language-drawing:hover {
-  border: none !important;
 }
