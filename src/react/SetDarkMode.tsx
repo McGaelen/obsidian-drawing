@@ -11,7 +11,7 @@ export function SetDarkMode() {
       setDarkMode(editor)
     })
 
-  useEffect(() => () => unsubscribe(), [])
+  // useEffect(() => () => unsubscribe(), [])
 
   return <></>
 }

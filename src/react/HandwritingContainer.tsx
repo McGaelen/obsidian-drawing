@@ -1,32 +1,20 @@
-import { type PropsWithChildren, useEffect, useState } from 'react'
-import { fromResizeObserver } from '../utils/fromResizeObserver'
-import { throttleTime } from 'rxjs'
+import { createContext, type PropsWithChildren, useState } from 'react'
+import { useMarkdownViewWidth } from './hooks/useMarkdownViewWidth'
+import { Resizer } from './Resizer'
 
 export function HandwritingContainer({children}: PropsWithChildren) {
-  let [maxWidth, setMaxWidth] = useState(0)
+  const HandwritingContext = createContext(500)
 
-  const cm_scroller = document.querySelector('.cm-scroller')
-  if (!cm_scroller) {
-    return <>
-      <h1>Couldn't find the `.cm-scroller` element!</h1>
-      <p>This react app needs to be mounted by an Obsidian Plugin!</p>
-    </>
-  }
+  let width = useMarkdownViewWidth()
+  let [height, setHeight] = useState(500)
+  console.log(height)
 
-  const {unsubscribe} = fromResizeObserver(cm_scroller)
-    .pipe(throttleTime(100))
-    .subscribe(_ => {
-      setMaxWidth(cm_scroller.clientWidth - 100)
-    })
-
-  useEffect(() => () => unsubscribe(), [])
-
-  return (
+  return <HandwritingContext.Provider value={height}>
     <div
       style={{
         position: 'relative',
-        height: '500px',
-        width: `${maxWidth}px`,
+        height: `${height}px`,
+        width: `${width}px`,
         left: '50%',
         translate: '-50%',
         contain: 'style !important'
@@ -39,5 +27,9 @@ export function HandwritingContainer({children}: PropsWithChildren) {
     >
       {children}
     </div>
-  )
+    <Resizer
+      onResize={delta => setHeight(height + delta)}
+    />
+  </HandwritingContext.Provider>
+
 }
