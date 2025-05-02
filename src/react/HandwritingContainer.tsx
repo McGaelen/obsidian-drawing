@@ -31,6 +31,11 @@ export function HandwritingContainer({children}: PropsWithChildren) {
         translate: '-50%',
         contain: 'style !important'
       }}
+      // Capture the wheel event so event bubbling goes top-down,
+      // then stopPropagation to prevent all children from handling it.
+      // We don't want tldraw listening to mouse wheel events because it
+      // prevents the markdown view from scrolling!
+      onWheelCapture={e => e.stopPropagation()}
     >
       {children}
     </div>

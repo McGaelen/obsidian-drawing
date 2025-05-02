@@ -6,12 +6,9 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
-@import 'src/tldraw.css';
+@import 'tldraw/tldraw.css';
 
-:root {
-  --color-low: var(--background-primary);
-}
-
+/* ============ Obsidian Overrides ============ */
 .cm-preview-code-block.cm-embed-block.markdown-rendered:has(.block-language-drawing) {
   contain: style !important;
 
@@ -23,4 +20,19 @@ If your plugin does not need CSS, delete this file.
   .edit-block-button {
     display: none !important;
   }
+}
+
+/* ============ Tldraw Overrides ============ */
+:root {
+  --color-low: var(--background-primary);
+}
+
+input,
+*[contenteditable],
+*[contenteditable] * {
+  user-select: unset !important;
+}
+
+.tl-container__focused {
+  outline: none;
 }
