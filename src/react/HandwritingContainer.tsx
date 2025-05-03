@@ -16,7 +16,7 @@ export function HandwritingContainer({children}: PropsWithChildren) {
         left: '50%',
         translate: '-50%',
         contain: 'style !important',
-        marginTop: '10px'
+        paddingTop: '10px'
       }}
       // Capture the wheel event so event bubbling goes top-down,
       // then stopPropagation to prevent all children from handling it.
@@ -29,6 +29,6 @@ export function HandwritingContainer({children}: PropsWithChildren) {
     <Resizer
       onResize={delta => setHeight(h => h + delta)}
     />
-    <div style={{marginBottom: '10px'}}></div>
+    <div style={{paddingBottom: '10px'}}></div>
   </>
 }

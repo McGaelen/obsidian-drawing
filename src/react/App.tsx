@@ -25,6 +25,9 @@ export function App({ initialState, onchange }: {initialState?: TLEditorSnapshot
     editor.sideEffects.registerAfterChangeHandler('shape', () => {
       onchangeDebounced(editor)
     })
+    editor.sideEffects.registerAfterDeleteHandler('shape', () => {
+      onchangeDebounced(editor)
+    })
   }
 
   return (
