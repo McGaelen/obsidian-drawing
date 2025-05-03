@@ -3,13 +3,11 @@ import { useMarkdownViewWidth } from './hooks/useMarkdownViewWidth'
 import { Resizer } from './Resizer'
 
 export function HandwritingContainer({children}: PropsWithChildren) {
-  const HandwritingContext = createContext(500)
-
   let width = useMarkdownViewWidth()
   let [height, setHeight] = useState(500)
   console.log(height)
 
-  return <HandwritingContext.Provider value={height}>
+  return <>
     <div
       style={{
         position: 'relative',
@@ -17,7 +15,8 @@ export function HandwritingContainer({children}: PropsWithChildren) {
         width: `${width}px`,
         left: '50%',
         translate: '-50%',
-        contain: 'style !important'
+        contain: 'style !important',
+        marginTop: '10px'
       }}
       // Capture the wheel event so event bubbling goes top-down,
       // then stopPropagation to prevent all children from handling it.
@@ -28,8 +27,8 @@ export function HandwritingContainer({children}: PropsWithChildren) {
       {children}
     </div>
     <Resizer
-      onResize={delta => setHeight(height + delta)}
+      onResize={delta => setHeight(h => h + delta)}
     />
-  </HandwritingContext.Provider>
-
+    <div style={{marginBottom: '10px'}}></div>
+  </>
 }
