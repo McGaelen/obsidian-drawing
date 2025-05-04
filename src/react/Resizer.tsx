@@ -1,15 +1,18 @@
-import { useEffect, useRef } from 'react'
+import { useContext, useEffect, useRef } from 'react'
 import { Platform } from 'obsidian'
 import interact from 'interactjs'
+import { HandwritingStateContext } from './HandwritingStateContext'
 
-export function Resizer({onResize}: {onResize: (delta: number) => void}) {
+export function Resizer() {
+  let { setHeight } = useContext(HandwritingStateContext)
+
   let divRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     interact(divRef.current!).draggable({
       listeners: {
         move(e) {
-          onResize(e.dy)
+          setHeight(val => val + e.dy)
         },
       },
     })

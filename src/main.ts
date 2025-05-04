@@ -25,33 +25,12 @@ export default class HandwritingPlugin extends Plugin {
           return
         }
 
-        const fileOrFolder = this.app.vault.getAbstractFileByPath(
-          options.filename,
-        )
+        const reactRoot = createRoot(el)
+        reactRoot.render(App({
+          filename: options.filename, app: this.app
+        }))
 
-        if (fileOrFolder instanceof TFile) {
-          const contents = await this.app.vault.read(fileOrFolder)
-
-          let initialState: TLEditorSnapshot | undefined = undefined
-          try {
-            initialState = JSON.parse(contents)
-          } catch (e) {
-            console.warn(e, 'Failed to parse tldraw file; creating new one.')
-          }
-
-          const reactRoot = createRoot(el)
-          reactRoot.render(App({
-            initialState,
-            onchange: (snapshot) => {
-              this.app.vault.modify(fileOrFolder, JSON.stringify(snapshot))
-            }
-          }))
-
-          ctx.addChild(new HandwritingRenderChild(reactRoot, el))
-        } else {
-          el.textContent =
-            'Provided filepath does not exist or is not a valid file.'
-        }
+        ctx.addChild(new HandwritingRenderChild(reactRoot, el))
       },
     )
 

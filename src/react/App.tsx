@@ -1,45 +1,24 @@
-import {
-  Tldraw,
-  type TLEditorSnapshot,
-  type TLOnMountHandler,
-  type Editor,
-  type TLComponents,
-} from 'tldraw'
-import { debounce } from 'lodash-es'
-import { Background } from './Background'
-import { SetDarkMode } from './SetDarkMode'
-import { HandwritingContainer } from './HandwritingContainer'
-import { SetCameraOptions } from './SetCameraOptions'
+import { HandwritingStateProvider } from './HandwritingStateContext'
+import {type App as ObsidianApp, TFile } from 'obsidian'
+import { HandwritingApp } from './HandwritingApp'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
-export function App({ initialState, onchange }: {initialState?: TLEditorSnapshot, onchange: (snapshot: TLEditorSnapshot) => void }) {
-  const onchangeDebounced = debounce(
-    (editor: Editor) => onchange(editor.getSnapshot()),
-    1000 // 1 second
-  )
+/**
+ * This is the root of the entire plugin - it's responsible for setting up the
+ * global state/context.
+ */
+export function App({ filename, app }: {filename: string, app: ObsidianApp }) {
+  const file = app.vault.getAbstractFileByPath(filename)
 
-  const components: TLComponents = {
-    Background,
+  if (file instanceof TFile) {
+    return (
+      <QueryClientProvider client={new QueryClient()}>
+        <HandwritingStateProvider file={file} app={app}>
+          <HandwritingApp />
+        </HandwritingStateProvider>
+      </QueryClientProvider>
+    )
+  } else {
+    return <div>Provided filepath does not exist or is not a valid file.</div>
   }
-  
-  const onTldrawMount: TLOnMountHandler = editor => {
-    editor.sideEffects.registerAfterChangeHandler('shape', () => {
-      onchangeDebounced(editor)
-    })
-    editor.sideEffects.registerAfterDeleteHandler('shape', () => {
-      onchangeDebounced(editor)
-    })
-  }
-
-  return (
-    <HandwritingContainer>
-      <Tldraw
-        onMount={onTldrawMount}
-        snapshot={initialState}
-        components={components}
-      >
-        <SetDarkMode />
-        <SetCameraOptions />
-      </Tldraw>
-    </HandwritingContainer>
-  )
 }

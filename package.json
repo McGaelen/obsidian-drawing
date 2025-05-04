@@ -12,6 +12,7 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@tanstack/react-query": "^5.75.2",
     "@tsconfig/svelte": "^5.0.4",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^22.13.1",

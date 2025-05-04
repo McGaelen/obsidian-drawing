@@ -19,6 +19,7 @@ export function useMarkdownViewWidth(): number {
       setWidth(cm_scroller.clientWidth)
     })
 
+  // TODO: figure out why this blows up
   // useEffect(() => () => unsubscribe(), [])
 
   return width
