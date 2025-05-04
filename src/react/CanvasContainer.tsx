@@ -1,10 +1,10 @@
 import { type PropsWithChildren, useContext } from 'react'
-import { HandwritingStateContext } from './HandwritingStateContext'
+import { StateContext } from './StateContext'
 import { useMarkdownViewWidth } from './hooks/useMarkdownViewWidth'
 
-export function HandwritingContainer({children}: PropsWithChildren) {
+export function CanvasContainer({children}: PropsWithChildren) {
   let width = useMarkdownViewWidth()
-  let {height} = useContext(HandwritingStateContext)
+  let {height} = useContext(StateContext)
 
   return <div
     style={{

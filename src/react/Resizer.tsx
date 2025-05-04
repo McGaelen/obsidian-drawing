@@ -1,10 +1,10 @@
 import { useContext, useEffect, useRef } from 'react'
 import { Platform } from 'obsidian'
 import interact from 'interactjs'
-import { HandwritingStateContext } from './HandwritingStateContext'
+import { StateContext } from './StateContext'
 
 export function Resizer() {
-  let { setHeight } = useContext(HandwritingStateContext)
+  let { setHeight } = useContext(StateContext)
 
   let divRef = useRef<HTMLDivElement>(null);
 

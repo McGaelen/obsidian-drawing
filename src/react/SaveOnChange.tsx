@@ -1,10 +1,10 @@
 import { useEditor } from 'tldraw'
-import { HandwritingStateContext } from './HandwritingStateContext'
+import { StateContext } from './StateContext'
 import { useContext } from 'react'
 import { debounceTime, fromEventPattern, merge } from 'rxjs'
 
 export function SaveOnChange() {
-  const {file, app} = useContext(HandwritingStateContext)
+  const {file, app} = useContext(StateContext)
 
   const editor = useEditor()
 

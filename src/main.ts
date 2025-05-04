@@ -4,12 +4,10 @@ import {
   type MarkdownFileInfo,
   MarkdownView,
   Plugin,
-  TFile,
 } from 'obsidian'
 import { HandwritingRenderChild } from './HandwritingRenderChild'
 import { createRoot } from 'react-dom/client'
-import {App} from './react/App'
-import type { TLEditorSnapshot } from 'tldraw'
+import {HandwritingRoot} from './react/HandwritingRoot'
 
 export default class HandwritingPlugin extends Plugin {
   async onload() {
@@ -26,7 +24,7 @@ export default class HandwritingPlugin extends Plugin {
         }
 
         const reactRoot = createRoot(el)
-        reactRoot.render(App({
+        reactRoot.render(HandwritingRoot({
           filename: options.filename, app: this.app
         }))
 
