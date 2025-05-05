@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react'
 import { fromResizeObserver } from '../../utils/fromResizeObserver'
 import { throttleTime } from 'rxjs'
+import { Platform } from 'obsidian'
 
 export function useMarkdownViewWidth(): number {
   let [width, setWidth] = useState(0)
 
-  const cm_scroller = document.querySelector('.cm-scroller')
+  const selector = Platform.isMobile ? '.markdown-reading-view' : '.cm-scroller'
+  const cm_scroller = document.querySelector(selector)
   if (!cm_scroller) {
     throw new Error(`
-      Couldn't find the '.cm-scroller' element!
+      Couldn't find the '${selector}' element!
       This react app needs to be mounted by an Obsidian Plugin!
     `)
   }
