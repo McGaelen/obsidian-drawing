@@ -4,14 +4,14 @@ import { SaveOnChange } from './SaveOnChange'
 import { type TLComponents, Tldraw, type TLEditorSnapshot } from 'tldraw'
 import { useContext } from 'react'
 import { StateContext } from './StateContext'
-import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { Background } from './Background'
 import { App, TFile } from 'obsidian'
 
 export function Canvas() {
   const {app, file} = useContext(StateContext)
 
-  const {data: initialSnapshot} = useSuspenseQuery({
+  const {data} = useSuspenseQuery({
     queryKey: ['snapshot'],
     queryFn: () => readSnapshotFile(app, file),
   })
@@ -22,7 +22,7 @@ export function Canvas() {
 
   return (
     <Tldraw
-      snapshot={initialSnapshot}
+      snapshot={data}
       components={components}
     >
       <SetDarkMode />
@@ -34,5 +34,6 @@ export function Canvas() {
 
 async function readSnapshotFile(app: App, file: TFile): Promise<TLEditorSnapshot> {
   const contents = await app.vault.read(file)
-  return JSON.parse(contents)
+  // TODO: dont do this terrible hackiness, its disgusting
+  return JSON.parse(contents || '{}')
 }
