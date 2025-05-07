@@ -1,20 +1,13 @@
 import { SetDarkMode } from './SetDarkMode'
 import { SetCameraOptions } from './SetCameraOptions'
 import { SaveOnChange } from './SaveOnChange'
-import { type TLComponents, Tldraw, type TLEditorSnapshot } from 'tldraw'
-import { useContext } from 'react'
+import { type TLComponents, Tldraw } from 'tldraw'
+import { useContext, useRef } from 'react'
 import { StateContext } from './StateContext'
-import { useSuspenseQuery } from '@tanstack/react-query'
 import { Background } from './Background'
-import { App, TFile } from 'obsidian'
 
 export function Canvas() {
-  const {app, file} = useContext(StateContext)
-
-  const {data} = useSuspenseQuery({
-    queryKey: ['snapshot'],
-    queryFn: () => readSnapshotFile(app, file),
-  })
+  const { current: { snapshot } } = useRef(useContext(StateContext))
 
   const components: TLComponents = {
     Background,
@@ -22,7 +15,7 @@ export function Canvas() {
 
   return (
     <Tldraw
-      snapshot={data}
+      snapshot={snapshot}
       components={components}
     >
       <SetDarkMode />
@@ -32,8 +25,4 @@ export function Canvas() {
   )
 }
 
-async function readSnapshotFile(app: App, file: TFile): Promise<TLEditorSnapshot> {
-  const contents = await app.vault.read(file)
-  // TODO: dont do this terrible hackiness, its disgusting
-  return JSON.parse(contents || '{}')
-}
+

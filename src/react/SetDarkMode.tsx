@@ -6,13 +6,14 @@ export function SetDarkMode() {
   const editor = useEditor()
   setDarkMode(editor)
 
-  const {unsubscribe} = fromMutationObserver(document.body, { attributes: true })
-    .subscribe(_ => {
-      setDarkMode(editor)
-    })
+  useEffect(() => {
+    const sub = fromMutationObserver(document.body, { attributes: true })
+      .subscribe(_ => {
+        setDarkMode(editor)
+      })
 
-  // TODO: figure out why this blows up
-  // useEffect(() => () => unsubscribe(), [])
+    return () => sub.unsubscribe()
+  }, [])
 
   return <></>
 }

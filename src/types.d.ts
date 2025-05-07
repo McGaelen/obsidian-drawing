@@ -1,14 +1,25 @@
-import type { App, TFile } from 'obsidian'
 import type { TLEditorSnapshot } from 'tldraw'
+import type { ReactNode } from 'react'
 
 declare global {
   interface HandwritingState {
-    file: TFile
-    app: App
     height: number
-    // snapshot: TLEditorSnapshot
+    snapshot?: TLEditorSnapshot
   }
 
+  /** =========== Props =========== */
+  interface HandwritingRootProps {
+    initialState: HandwritingState
+    onStateChange: OnStateChangeHandler
+  }
+
+  interface StateProviderProps {
+    initialState: HandwritingState
+    onStateChange: OnStateChangeHandler
+    children: ReactNode
+  }
+
+  /** =========== Actions =========== */
   interface ChangeHeightAction {
     type: 'change-height'
     amount: number
@@ -19,5 +30,8 @@ declare global {
     snapshot: TLEditorSnapshot
   }
 
-  type AnyAction = ChangeHeightAction | SetSnapshotAction
+  type HandwritingAction = ChangeHeightAction | SetSnapshotAction
+
+  /** =========== Other =========== */
+  type OnStateChangeHandler = (state: HandwritingState) => void
 }

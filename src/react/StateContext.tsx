@@ -1,23 +1,22 @@
 import {
   type ActionDispatch,
   createContext,
-  type PropsWithChildren,
+  useEffect,
   useReducer,
-  useState,
 } from 'react'
-import type { App, TFile } from 'obsidian'
 
 export const StateContext = createContext({} as HandwritingState)
-export const DispatchContext = createContext((() => {}) as ActionDispatch<[AnyAction]>)
+export const DispatchContext = createContext((() => {}) as ActionDispatch<[HandwritingAction]>)
 
-export function StateProvider({file, app, children }: {file: TFile, app: App} & PropsWithChildren) {
-  const initialValue: HandwritingState = {
-    file,
-    app,
-    height: 500, // TODO: read this from the json file!
-  }
+export function StateProvider(
+  { initialState, onStateChange, children }: StateProviderProps
+) {
+  const [state, dispatch] = useReducer<HandwritingState, [HandwritingAction]>(reducer, initialState)
 
-  const [state, dispatch] = useReducer<HandwritingState, [AnyAction]>(reducer, initialValue)
+  useEffect(() => {
+    console.log('state changed')
+    onStateChange(state)
+  }, [state])
 
   return (
     <StateContext.Provider value={state}>
@@ -28,14 +27,19 @@ export function StateProvider({file, app, children }: {file: TFile, app: App} & 
   )
 }
 
-function reducer(state: HandwritingState, action: AnyAction): HandwritingState {
+function reducer(state: HandwritingState, action: HandwritingAction): HandwritingState {
   switch (action.type) {
     case 'change-height':
       return {
         ...state,
-        height: state.height + action.amount
+        height: state.height + action.amount,
+      }
+    case 'set-snapshot':
+      return {
+        ...state,
+        snapshot: action.snapshot,
       }
     default:
-      throw new Error('Unknown action: ' + action.type)
+      throw new Error('Unknown action: ' + action)
   }
 }

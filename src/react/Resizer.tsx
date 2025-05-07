@@ -9,7 +9,7 @@ export function Resizer() {
   let divRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    interact(divRef.current!).draggable({
+    const interactable = interact(divRef.current!).draggable({
       listeners: {
         move(e) {
           dispatch({
@@ -19,6 +19,8 @@ export function Resizer() {
         },
       },
     })
+
+    return () => interactable.unset()
   }, [])
 
   return <>

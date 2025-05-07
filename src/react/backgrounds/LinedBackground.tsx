@@ -7,10 +7,11 @@ export function LinedBackground() {
         key={n}
         style={{
           top: `${(n * 50) + 50}px`,
+          left: '50px',
           position: 'relative',
           backgroundColor: 'var(--background-modifier-hover)',
           height: '2px',
-          width: '100%',
+          width: 'calc(100% - 100px)',
         }}
       />
     ))}

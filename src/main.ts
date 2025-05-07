@@ -3,7 +3,7 @@ import {
   Editor,
   type MarkdownFileInfo,
   MarkdownView,
-  Plugin,
+  Plugin, TFile,
 } from 'obsidian'
 import { HandwritingRenderChild } from './HandwritingRenderChild'
 import { createRoot } from 'react-dom/client'
@@ -14,21 +14,24 @@ export default class HandwritingPlugin extends Plugin {
     this.registerMarkdownCodeBlockProcessor(
       'drawing',
       async (source, el, ctx) => {
-        let options: { filename: string }
-        try {
-          options = JSON.parse(source)
-        } catch (e) {
-          console.error(e)
-          el.textContent = 'Failed to parse options JSON'
-          return
-        }
-
         const reactRoot = createRoot(el)
-        reactRoot.render(HandwritingRoot({
-          filename: options.filename, app: this.app
-        }))
 
-        ctx.addChild(new HandwritingRenderChild(reactRoot, el))
+        const file = this.app.vault.getAbstractFileByPath(source)
+
+        // TODO: dont do this terrible hackiness, its disgusting
+        if (file instanceof TFile) {
+          const contents = await this.app.vault.read(file)
+          reactRoot.render(HandwritingRoot({
+            initialState: JSON.parse(contents),
+            onStateChange: (state) => {
+              this.app.vault.modify(file, JSON.stringify(state))
+            }
+          }))
+
+          ctx.addChild(new HandwritingRenderChild(reactRoot, el))
+        } else {
+          throw new Error('Invalid state file provided')
+        }
       },
     )
 
@@ -40,13 +43,12 @@ export default class HandwritingPlugin extends Plugin {
         editor: Editor,
         _ctx: MarkdownView | MarkdownFileInfo,
       ) {
-        const filename = `tldraw/${crypto.randomUUID()}.tldraw`
+        const filename = `tldraw/${crypto.randomUUID()}.md`
 
-        await self.app.vault.create(filename, '')
+        await self.app.vault.create(filename, '{"height": 500}')
 
-        const optionsStr = JSON.stringify({ filename })
         editor.replaceRange(
-          '\n```drawing\n' + optionsStr + '\n```\n',
+          '\n```drawing\n' + filename + '\n```\n',
           editor.getCursor(),
         )
       },

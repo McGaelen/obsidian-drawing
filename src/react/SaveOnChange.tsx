@@ -1,23 +1,26 @@
 import { useEditor } from 'tldraw'
-import { StateContext } from './StateContext'
-import { useContext } from 'react'
+import { DispatchContext } from './StateContext'
+import { useContext, useEffect } from 'react'
 import { debounceTime, fromEventPattern, merge } from 'rxjs'
 
 export function SaveOnChange() {
-  const {file, app} = useContext(StateContext)
-
+  const dispatch = useContext(DispatchContext)
   const editor = useEditor()
 
-  const onChange = fromEventPattern(
-    handler => editor.sideEffects.registerAfterChangeHandler('shape', handler),
-  )
-  const onDelete = fromEventPattern(
-    handler => editor.sideEffects.registerAfterDeleteHandler('shape', handler),
-  )
+  useEffect(() => {
+    const onChange = fromEventPattern(
+      handler => editor.sideEffects.registerAfterChangeHandler('shape', handler),
+    )
+    const onDelete = fromEventPattern(
+      handler => editor.sideEffects.registerAfterDeleteHandler('shape', handler),
+    )
 
-  const {unsubscribe} = merge(onChange, onDelete).pipe(debounceTime(500)).subscribe(async () => {
-    await app.vault.modify(file, JSON.stringify(editor.getSnapshot()))
-  })
+    const sub = merge(onChange, onDelete).pipe(debounceTime(500)).subscribe(() => {
+      dispatch({ type: 'set-snapshot', snapshot: editor.getSnapshot() })
+    })
+
+    return () => sub.unsubscribe()
+  }, [])
 
   return <></>
 }

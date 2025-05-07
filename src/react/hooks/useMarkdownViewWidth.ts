@@ -8,6 +8,7 @@ export function useMarkdownViewWidth(): number {
 
   const selector = Platform.isMobile ? '.markdown-reading-view' : '.cm-scroller'
   const cm_scroller = document.querySelector(selector)
+
   if (!cm_scroller) {
     throw new Error(`
       Couldn't find the '${selector}' element!
@@ -15,14 +16,15 @@ export function useMarkdownViewWidth(): number {
     `)
   }
 
-  const {unsubscribe} = fromResizeObserver(cm_scroller)
-    .pipe(throttleTime(100))
-    .subscribe(_ => {
-      setWidth(cm_scroller.clientWidth)
-    })
+  useEffect(() => {
+    const sub = fromResizeObserver(cm_scroller)
+      .pipe(throttleTime(100))
+      .subscribe(_ => {
+        setWidth(cm_scroller.clientWidth)
+      })
 
-  // TODO: figure out why this blows up
-  // useEffect(() => () => unsubscribe(), [])
+    return () => sub.unsubscribe()
+  }, [])
 
   return width
 }

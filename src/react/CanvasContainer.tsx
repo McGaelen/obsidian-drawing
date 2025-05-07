@@ -1,8 +1,8 @@
-import { type PropsWithChildren, useContext } from 'react'
+import { type ReactNode, useContext } from 'react'
 import { StateContext } from './StateContext'
 import { useMarkdownViewWidth } from './hooks/useMarkdownViewWidth'
 
-export function CanvasContainer({children}: PropsWithChildren) {
+export function CanvasContainer({children}: {children: ReactNode}) {
   let width = useMarkdownViewWidth()
   let {height} = useContext(StateContext)
 
