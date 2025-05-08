@@ -15,7 +15,8 @@ export function SaveOnChange() {
       handler => editor.sideEffects.registerAfterDeleteHandler('shape', handler),
     )
 
-    const sub = merge(onChange, onDelete).pipe(debounceTime(500)).subscribe(() => {
+    // If this isn't debounced, it fires CONSTANTLY
+    const sub = merge(onChange, onDelete).pipe(debounceTime(100)).subscribe(() => {
       dispatch({ type: 'set-snapshot', snapshot: editor.getSnapshot() })
     })
 

@@ -2,10 +2,6 @@ import { StateProvider } from './StateContext'
 import { HandwritingPlugin } from './HandwritingPlugin'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
-/**
- * This is the root of the entire plugin, which is responsible for setting up the
- * global state/context.
- */
 export function HandwritingRoot(
   { initialState, onStateChange }: HandwritingRootProps
 ) {
