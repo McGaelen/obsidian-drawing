@@ -14,13 +14,57 @@ export function CanvasContainer({children}: {children: ReactNode}) {
       left: '50%',
       translate: '-50%',
       contain: 'style !important',
-      paddingTop: '10px'
+      paddingTop: '10px',
+      touchAction: 'pan-y !important',
     }}
     // Capture the wheel event so event bubbling goes top-down,
     // then stopPropagation to prevent all children from handling it.
     // We don't want tldraw listening to mouse wheel events because it
     // prevents the markdown view from scrolling!
     onWheelCapture={e => e.stopPropagation()}
+
+    onPointerDownCapture={e => {
+      console.log('onPointerDownCapture')
+      e.stopPropagation()
+    }}
+    onPointerMoveCapture={e => {
+      console.log('onPointerMoveCapture')
+      e.stopPropagation()
+    }}
+    onPointerUpCapture={e => {
+      console.log('onPointerUpCapture')
+      e.stopPropagation()
+    }}
+    onPointerCancelCapture={e => {
+      console.log('onPointerCancelCapture')
+      e.stopPropagation()
+    }}
+
+    onPointerEnterCapture={e => {
+      console.log('onPointerEnterCapture')
+      e.stopPropagation()
+    }}
+    onPointerOverCapture={e => {
+      console.log('onPointerOverCapture')
+      e.stopPropagation()
+    }}
+    onPointerLeaveCapture={e => {
+      console.log('onPointerLeaveCapture')
+      e.stopPropagation()
+    }}
+
+    // onTouchStartCapture={e => {
+    //   console.log('onTouchStartCapture')
+    //   e.stopPropagation()
+    // }}
+    // onTouchMoveCapture={e => {
+    //   console.log('onTouchMoveCapture')
+    //   e.stopPropagation()
+    // }}
+    // onTouchEndCapture={e => {
+    //   console.log('onTouchEndCapture')
+    //   e.stopPropagation()
+    // }}
   >
     {children}
   </div>
