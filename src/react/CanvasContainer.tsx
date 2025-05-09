@@ -1,10 +1,11 @@
-import { type ReactNode, useContext } from 'react'
+import { type ReactNode, useContext, useState } from 'react'
 import { StateContext } from './StateContext'
 import { useMarkdownViewWidth } from './hooks/useMarkdownViewWidth'
 
 export function CanvasContainer({children}: {children: ReactNode}) {
   let width = useMarkdownViewWidth()
   let {height} = useContext(StateContext)
+  let [isFinger, setIsFinger] = useState(false)
 
   return <div
     style={{
@@ -15,7 +16,6 @@ export function CanvasContainer({children}: {children: ReactNode}) {
       translate: '-50%',
       contain: 'style !important',
       paddingTop: '10px',
-      touchAction: 'pan-y !important',
     }}
     // Capture the wheel event so event bubbling goes top-down,
     // then stopPropagation to prevent all children from handling it.
@@ -23,36 +23,42 @@ export function CanvasContainer({children}: {children: ReactNode}) {
     // prevents the markdown view from scrolling!
     onWheelCapture={e => e.stopPropagation()}
 
-    onPointerDownCapture={e => {
-      console.log('onPointerDownCapture')
-      e.stopPropagation()
-    }}
-    onPointerMoveCapture={e => {
-      console.log('onPointerMoveCapture')
-      e.stopPropagation()
-    }}
-    onPointerUpCapture={e => {
-      console.log('onPointerUpCapture')
-      e.stopPropagation()
-    }}
-    onPointerCancelCapture={e => {
-      console.log('onPointerCancelCapture')
-      e.stopPropagation()
-    }}
-
-    onPointerEnterCapture={e => {
-      console.log('onPointerEnterCapture')
-      e.stopPropagation()
-    }}
-    onPointerOverCapture={e => {
-      console.log('onPointerOverCapture')
-      e.stopPropagation()
-    }}
-    onPointerLeaveCapture={e => {
-      console.log('onPointerLeaveCapture')
-      e.stopPropagation()
-    }}
-
+    // onPointerDownCapture={e => {
+    //   console.log('onPointerDownCapture')
+    //   if (e.pointerType === 'touch') {
+    //     setIsFinger(true)
+    //     e.stopPropagation()
+    //   } else {
+    //     setIsFinger(false)
+    //   }
+    // }}
+    // onPointerMoveCapture={e => {
+    //   console.log('onPointerMoveCapture')
+    //   e.stopPropagation()
+    // }}
+    // onPointerUpCapture={e => {
+    //   console.log('onPointerUpCapture')
+    //   setIsFinger(false)
+    //   // e.stopPropagation()
+    // }}
+    // onPointerCancelCapture={e => {
+    //   console.log('onPointerCancelCapture')
+    //   e.stopPropagation()
+    // }}
+    //
+    // onPointerEnterCapture={e => {
+    //   console.log('onPointerEnterCapture')
+    //   e.stopImmediatePropagation()
+    // }}
+    // onPointerOverCapture={e => {
+    //   console.log('onPointerOverCapture')
+    //   e.stopPropagation()
+    // }}
+    // onPointerLeaveCapture={e => {
+    //   console.log('onPointerLeaveCapture')
+    //   e.stopImmediatePropagation()
+    // }}
+    //
     // onTouchStartCapture={e => {
     //   console.log('onTouchStartCapture')
     //   e.stopPropagation()
@@ -65,7 +71,18 @@ export function CanvasContainer({children}: {children: ReactNode}) {
     //   console.log('onTouchEndCapture')
     //   e.stopPropagation()
     // }}
+    //
+    // onDragOverCapture={e => {
+    //   e.stopPropagation()
+    // }}
   >
     {children}
+    {isFinger &&
+      <style>{`
+        .tl-canvas {
+          touch-action: pan-y !important;
+        }
+      `}</style>
+    }
   </div>
 }
