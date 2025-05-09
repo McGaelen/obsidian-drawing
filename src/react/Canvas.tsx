@@ -19,11 +19,17 @@ export function Canvas() {
             position: 'absolute',
             width: '100%',
             height: '100%',
-            pointerEvents: isFinger ? 'all': 'none',
+            // pointerEvents: isFinger ? 'all': 'none',
+          }}
+          onPointerDown={e => {
+            console.log('hello')
+            if (e.pointerType === 'touch') {
+              e.stopPropagation()
+            }
           }}
           onTouchStart={e => {
             console.log('onTouchStart')
-            e.stopPropagation()
+            // e.stopPropagation()
           }}
         >
           hi
