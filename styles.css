@@ -36,3 +36,7 @@ input,
 .tl-container__focused {
   outline: none;
 }
+
+.tl-canvas {
+  touch-action: unset !important;
+}

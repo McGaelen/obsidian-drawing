@@ -13,14 +13,9 @@ export function CanvasContainer({children}: {children: ReactNode}) {
       width: `${width}px`,
       left: '50%',
       translate: '-50%',
-      contain: 'style !important',
+      contain: 'unset',
       paddingTop: '10px',
     }}
-    // Capture the wheel event so event bubbling goes top-down,
-    // then stopPropagation to prevent all children from handling it.
-    // We don't want tldraw listening to mouse wheel events because it
-    // prevents the markdown view from scrolling!
-    onWheelCapture={e => e.stopPropagation()}
   >
     {children}
   </div>

@@ -1,47 +1,27 @@
 import { SetDarkMode } from './SetDarkMode'
 import { SetCameraOptions } from './SetCameraOptions'
 import { SaveOnChange } from './SaveOnChange'
-import { type TLComponents, Tldraw, useEditor } from 'tldraw'
-import { useContext, useRef, useState } from 'react'
+import { type TLComponents, Tldraw } from 'tldraw'
+import { useContext, useRef } from 'react'
 import { StateContext } from './StateContext'
 import { Background } from './Background'
+import { TouchEventBlocker } from './TouchEventBlocker'
 
 export function Canvas() {
   const { current: { snapshot } } = useRef(useContext(StateContext))
 
   const components: TLComponents = {
     Background,
-    InFrontOfTheCanvas: () => {
-      const [isFinger, setIsFinger] = useState(false)
-      return (
-        <div
-          style={{
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            // pointerEvents: isFinger ? 'all': 'none',
-          }}
-          onPointerDown={e => {
-            console.log('hello')
-            if (e.pointerType === 'touch') {
-              e.stopPropagation()
-            }
-          }}
-          onTouchStart={e => {
-            console.log('onTouchStart')
-            // e.stopPropagation()
-          }}
-        >
-          hi
-        </div>
-      )
-    }
+    Canvas: TouchEventBlocker
   }
 
   return (
     <Tldraw
       snapshot={snapshot}
       components={components}
+      onMount={editor => {
+        editor.user.updateUserPreferences({edgeScrollSpeed: 0})
+      }}
     >
       <SetDarkMode />
       <SetCameraOptions />
