@@ -1,14 +1,19 @@
 import { SetDarkMode } from './SetDarkMode'
 import { SetCameraOptions } from './SetCameraOptions'
 import { SaveOnChange } from './SaveOnChange'
-import { type TLComponents, Tldraw } from 'tldraw'
-import { useContext, useRef } from 'react'
+import { type Editor, type TLComponents, Tldraw } from 'tldraw'
+import { createContext, useContext, useRef, useState } from 'react'
 import { StateContext } from './StateContext'
 import { Background } from './Background'
 import { TouchEventBlocker } from './TouchEventBlocker'
+import { FloatingToolbar } from './FloatingToolbar'
+
+export const EditorContext = createContext({} as Editor)
 
 export function Canvas() {
   const { current: { snapshot } } = useRef(useContext(StateContext))
+  
+  const [editor, setEditor] = useState<Editor | null>(null)
 
   const components: TLComponents = {
     Background,
@@ -16,17 +21,25 @@ export function Canvas() {
   }
 
   return (
-    <Tldraw
-      snapshot={snapshot}
-      components={components}
-      onMount={editor => {
-        editor.user.updateUserPreferences({edgeScrollSpeed: 0})
-      }}
-    >
-      <SetDarkMode />
-      <SetCameraOptions />
-      <SaveOnChange />
-    </Tldraw>
+    <>
+      <Tldraw
+        snapshot={snapshot}
+        components={components}
+        onMount={editor => {
+          setEditor(editor)
+          editor.user.updateUserPreferences({edgeScrollSpeed: 0})
+        }}
+      >
+        <SetDarkMode />
+        <SetCameraOptions />
+        <SaveOnChange />
+      </Tldraw>
+      {editor && (
+        <EditorContext.Provider value={editor}>
+          <FloatingToolbar />
+        </EditorContext.Provider>
+      )}
+    </>
   )
 }
 
