@@ -77,7 +77,7 @@ export function TouchEventBlocker() {
         height: '100%',
         // @ts-expect-error
         userSelect: 'none !important',
-        touchAction: 'pan-y'
+        touchAction: 'pan-y pan-x'
       }}
     >
       <DefaultCanvas />
