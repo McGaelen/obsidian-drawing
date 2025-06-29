@@ -2,8 +2,11 @@ import interact from 'interactjs'
 import { useEffect, useRef, useState } from 'react'
 import type { Interactable } from '@interactjs/core/Interactable'
 import { useMarkdownViewRect } from './hooks/useMarkdownViewRect'
+import { createPortal } from 'react-dom'
+import { useMarkdownView } from './hooks/useMarkdownView'
 
 export function FloatingToolbar() {
+  const mdEl = useMarkdownView()
   const mdRect = useMarkdownViewRect()
 
   const [x, setX] = useState(0)
@@ -37,15 +40,8 @@ export function FloatingToolbar() {
     }
   }, [mdRect])
 
-  return !mdRect ? (<></>) : (
-    <div
-      ref={containerRef}
-      style={{
-        position: 'absolute',
-        width: `${mdRect.width}px`,
-        height: `${mdRect.height}px`,
-      }}
-    >
+  return !mdRect ? (<></>) :
+    createPortal(
       <div
         ref={toolbarRef}
         style={{
@@ -60,7 +56,7 @@ export function FloatingToolbar() {
           boxShadow: 'rgba(0, 0, 0, 0.5) 0px 6px 20px',
           touchAction: 'none',
         }}
-      />
-    </div>
-  )
+      />,
+      mdEl
+    )
 }
