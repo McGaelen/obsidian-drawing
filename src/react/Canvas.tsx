@@ -6,7 +6,7 @@ import { createContext, useContext, useRef, useState } from 'react'
 import { StateContext } from './StateContext'
 import { Background } from './Background'
 import { TouchEventBlocker } from './TouchEventBlocker'
-import { FloatingToolbar } from './FloatingToolbar'
+import { FloatingToolbar } from './toolbar/FloatingToolbar'
 
 export const EditorContext = createContext({} as Editor)
 
