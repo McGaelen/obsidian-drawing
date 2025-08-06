@@ -8,17 +8,19 @@ export function SaveOnChange() {
   const editor = useEditor()
 
   useEffect(() => {
-    const onChange = fromEventPattern(
-      handler => editor.sideEffects.registerAfterChangeHandler('shape', handler),
+    const onChange = fromEventPattern(handler =>
+      editor.sideEffects.registerAfterChangeHandler('shape', handler),
     )
-    const onDelete = fromEventPattern(
-      handler => editor.sideEffects.registerAfterDeleteHandler('shape', handler),
+    const onDelete = fromEventPattern(handler =>
+      editor.sideEffects.registerAfterDeleteHandler('shape', handler),
     )
 
     // If this isn't debounced, it fires CONSTANTLY
-    const sub = merge(onChange, onDelete).pipe(debounceTime(100)).subscribe(() => {
-      dispatch({ type: 'set-snapshot', snapshot: editor.getSnapshot() })
-    })
+    const sub = merge(onChange, onDelete)
+      .pipe(debounceTime(100))
+      .subscribe(() => {
+        dispatch({ type: 'set-snapshot', snapshot: editor.getSnapshot() })
+      })
 
     return () => sub.unsubscribe()
   }, [])

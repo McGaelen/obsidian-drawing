@@ -9,7 +9,9 @@ If your plugin does not need CSS, delete this file.
 @import 'tldraw/tldraw.css';
 
 /* ============ Obsidian Overrides ============ */
-.cm-preview-code-block.cm-embed-block.markdown-rendered:has(.block-language-drawing) {
+.cm-preview-code-block.cm-embed-block.markdown-rendered:has(
+    .block-language-drawing
+  ) {
   contain: style !important;
 
   &:hover {

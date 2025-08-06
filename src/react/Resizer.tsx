@@ -1,52 +1,53 @@
-import { useContext, useEffect, useRef } from 'react'
+import { useContext } from 'react'
 import { Platform } from 'obsidian'
-import interact from 'interactjs'
 import { DispatchContext } from './StateContext'
+import { Draggable } from 'gsap/Draggable'
 
 export function Resizer() {
   const dispatch = useContext(DispatchContext)
 
-  let divRef = useRef<HTMLDivElement>(null);
+  function setupDraggable(div: HTMLDivElement): () => void {
+    const draggable = new Draggable(div, {
+      type: 'top',
 
-  useEffect(() => {
-    const interactable = interact(divRef.current!).draggable({
-      listeners: {
-        move(e) {
-          dispatch({
-            type: 'change-height',
-            amount: e.dy
-          })
-        },
+      onDrag() {
+        dispatch({
+          type: 'change-height',
+          amount: draggable.deltaY,
+        })
       },
     })
 
-    return () => interactable.unset()
-  }, [])
+    return () => {
+      draggable.kill()
+    }
+  }
 
-  return <>
-    <div
-      ref={divRef}
-      className={`resizer ${Platform.isMobile || Platform.isMobileApp ? 'taller' : ''}`}
-    ></div>
-    <style>{`
+  return (
+    <>
+      <div
+        ref={setupDraggable}
+        className={`resizer ${Platform.isMobile || Platform.isMobileApp ? 'taller' : ''}`}
+      />
+      <style>{`
       .resizer {
-          transition: all;
-          transition-duration: 200ms;
-          height: 5px;
-          background-color: var(--divider-color);
-          border-radius: var(--radius-s);
-          cursor: row-resize !important;
-          touch-action: none;
-        }
-      
-        .resizer.taller {
-          height: 15px;
-        }
-      
-        .resizer:hover {
-          background-color: var(--interactive-accent);
-        }
+        transition: all;
+        transition-duration: 200ms;
+        height: 5px;
+        background-color: var(--divider-color);
+        border-radius: var(--radius-s);
+        cursor: row-resize !important;
+        touch-action: none;
+      }
+    
+      .resizer.taller {
+        height: 15px;
+      }
+    
+      .resizer:hover {
+        background-color: var(--interactive-accent);
+      }
     `}</style>
-  </>
-
+    </>
+  )
 }

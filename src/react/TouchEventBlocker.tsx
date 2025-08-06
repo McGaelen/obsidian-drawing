@@ -20,9 +20,9 @@ export function TouchEventBlocker() {
           if (e.pointerType === 'pen') {
             e.preventDefault()
             usingPen = true
-            editor.focus({focusContainer: false})
+            editor.focus({ focusContainer: false })
           } else if (e.pointerType === 'touch') {
-            editor.blur({blurContainer: false})
+            editor.blur({ blurContainer: false })
             e.stopPropagation()
           }
         }
@@ -55,20 +55,20 @@ export function TouchEventBlocker() {
           usingPen = false
         }
 
-        div!.addEventListener('pointerdown', onPointerDown, {capture: true})
-        div!.addEventListener('pointermove', onPointerMove, {capture: true})
-        div!.addEventListener('pointerup', onPointerUp, {capture: true})
+        div!.addEventListener('pointerdown', onPointerDown, { capture: true })
+        div!.addEventListener('pointermove', onPointerMove, { capture: true })
+        div!.addEventListener('pointerup', onPointerUp, { capture: true })
         // These touch events have to be set manually since touch events in React are always passive
-        div!.addEventListener('touchstart', onTouchStart, {capture: true})
-        div!.addEventListener('touchmove', onTouchMove, {capture: true})
-        div!.addEventListener('touchend', onTouchEnd, {capture: true})
+        div!.addEventListener('touchstart', onTouchStart, { capture: true })
+        div!.addEventListener('touchmove', onTouchMove, { capture: true })
+        div!.addEventListener('touchend', onTouchEnd, { capture: true })
         return () => {
           div!.removeEventListener('pointerdown', onPointerDown)
           div!.removeEventListener('pointermove', onPointerMove)
-          div!.removeEventListener('pointerup', onPointerUp, {capture: true})
+          div!.removeEventListener('pointerup', onPointerUp, { capture: true })
           div!.removeEventListener('touchstart', onTouchStart)
           div!.removeEventListener('touchmove', onTouchMove)
-          div!.removeEventListener('touchend', onTouchEnd, {capture: true})
+          div!.removeEventListener('touchend', onTouchEnd, { capture: true })
         }
       }}
       style={{
@@ -77,7 +77,7 @@ export function TouchEventBlocker() {
         height: '100%',
         // @ts-expect-error
         userSelect: 'none !important',
-        touchAction: 'pan-y pan-x'
+        touchAction: 'pan-y pan-x',
       }}
     >
       <DefaultCanvas />

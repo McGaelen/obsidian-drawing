@@ -3,11 +3,12 @@ import {
   Editor,
   type MarkdownFileInfo,
   MarkdownView,
-  Plugin, TFile,
+  Plugin,
+  TFile,
 } from 'obsidian'
 import { HandwritingRenderChild } from './HandwritingRenderChild'
 import { createRoot } from 'react-dom/client'
-import {HandwritingRoot} from './react/HandwritingRoot'
+import { App } from './react/App'
 
 export default class HandwritingPlugin extends Plugin {
   async onload() {
@@ -21,12 +22,14 @@ export default class HandwritingPlugin extends Plugin {
         // TODO: dont do this terrible hackiness, its disgusting
         if (file instanceof TFile) {
           const contents = await this.app.vault.read(file)
-          reactRoot.render(HandwritingRoot({
-            initialState: JSON.parse(contents),
-            onStateChange: (state) => {
-              this.app.vault.modify(file, JSON.stringify(state))
-            }
-          }))
+          reactRoot.render(
+            App({
+              initialState: JSON.parse(contents),
+              onStateChange: state => {
+                this.app.vault.modify(file, JSON.stringify(state))
+              },
+            }),
+          )
 
           ctx.addChild(new HandwritingRenderChild(reactRoot, el))
         } else {

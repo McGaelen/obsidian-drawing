@@ -11,13 +11,15 @@ import { FloatingToolbar } from './toolbar/FloatingToolbar'
 export const EditorContext = createContext({} as Editor)
 
 export function Canvas() {
-  const { current: { snapshot } } = useRef(useContext(StateContext))
-  
+  const {
+    current: { snapshot },
+  } = useRef(useContext(StateContext))
+
   const [editor, setEditor] = useState<Editor | null>(null)
 
   const components: TLComponents = {
     Background,
-    Canvas: TouchEventBlocker
+    Canvas: TouchEventBlocker,
   }
 
   return (
@@ -27,7 +29,7 @@ export function Canvas() {
         components={components}
         onMount={editor => {
           setEditor(editor)
-          editor.user.updateUserPreferences({edgeScrollSpeed: 0})
+          editor.user.updateUserPreferences({ edgeScrollSpeed: 0 })
         }}
       >
         <SetDarkMode />
@@ -42,5 +44,3 @@ export function Canvas() {
     </>
   )
 }
-
-

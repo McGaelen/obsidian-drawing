@@ -8,17 +8,24 @@ import {
 // All serializable state goes here
 export const StateContext = createContext({} as HandwritingState)
 // The dispatch function for the reducer goes here
-export const DispatchContext = createContext((() => {}) as ActionDispatch<[HandwritingAction]>)
+export const DispatchContext = createContext((() => {}) as ActionDispatch<
+  [HandwritingAction]
+>)
 
 /**
  * This component sets up the global context for the entire plugin.
  * Whenever the state changes, it fires onStateChange, which the Plugin code
  * then saves to the state file.
  */
-export function StateProvider(
-  { initialState, onStateChange, children }: StateProviderProps
-) {
-  const [state, dispatch] = useReducer<HandwritingState, [HandwritingAction]>(reducer, initialState)
+export function StateProvider({
+  initialState,
+  onStateChange,
+  children,
+}: StateProviderProps) {
+  const [state, dispatch] = useReducer<HandwritingState, [HandwritingAction]>(
+    reducer,
+    initialState,
+  )
 
   useEffect(() => onStateChange(state), [state])
 
@@ -31,7 +38,10 @@ export function StateProvider(
   )
 }
 
-function reducer(state: HandwritingState, action: HandwritingAction): HandwritingState {
+function reducer(
+  state: HandwritingState,
+  action: HandwritingAction,
+): HandwritingState {
   switch (action.type) {
     case 'change-height':
       return {

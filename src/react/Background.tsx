@@ -6,7 +6,7 @@ export function Background() {
       style={{
         width: '100%',
         height: '100%',
-        backgroundColor: 'var(--background-primary)'
+        backgroundColor: 'var(--background-primary)',
       }}
     >
       <LinedBackground />

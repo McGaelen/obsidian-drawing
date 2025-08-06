@@ -13,12 +13,12 @@ export function SetCameraOptions() {
         x: 0,
         y: 0,
         w: 820,
-        h: 500
+        h: 500,
       },
       origin: { x: 0, y: 0 },
       padding: { x: 0, y: 0 },
-      behavior: 'fixed'
-    }
+      behavior: 'fixed',
+    },
   })
   editor.setCamera(editor.getCamera(), { immediate: true, reset: true })
 

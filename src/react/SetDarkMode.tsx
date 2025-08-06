@@ -7,10 +7,11 @@ export function SetDarkMode() {
   setDarkMode(editor)
 
   useEffect(() => {
-    const sub = fromMutationObserver(document.body, { attributes: true })
-      .subscribe(_ => {
-        setDarkMode(editor)
-      })
+    const sub = fromMutationObserver(document.body, {
+      attributes: true,
+    }).subscribe(_ => {
+      setDarkMode(editor)
+    })
 
     return () => sub.unsubscribe()
   }, [])
