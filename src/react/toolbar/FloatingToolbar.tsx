@@ -17,6 +17,7 @@ export function FloatingToolbar() {
             type: 'x,y',
             inertia: true,
             bounds: cmEditor,
+            minimumMovement: 10,
           })
           return () => {
             draggable.kill()
@@ -25,11 +26,11 @@ export function FloatingToolbar() {
         style={{
           width: 'fit-content',
           height: '100px',
-          borderRadius: '50px',
-          padding: '15px 25px',
+          // borderRadius: '50px',
+          // padding: '15px 25px',
           position: 'absolute',
           zIndex: 999999,
-          backgroundColor: 'var(--background-secondary-alt)',
+          backgroundColor: 'var(--background-secondary)',
           boxShadow: 'rgba(0, 0, 0, 0.5) 0px 6px 20px',
           touchAction: 'none',
         }}

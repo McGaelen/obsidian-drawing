@@ -27,6 +27,7 @@ export function Canvas() {
       <Tldraw
         snapshot={snapshot}
         components={components}
+        hideUi
         onMount={editor => {
           setEditor(editor)
           editor.user.updateUserPreferences({ edgeScrollSpeed: 0 })

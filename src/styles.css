@@ -6,6 +6,8 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+
+@import 'tailwindcss';
 @import 'tldraw/tldraw.css';
 
 /* ============ Obsidian Overrides ============ */
