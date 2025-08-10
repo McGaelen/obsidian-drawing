@@ -18,6 +18,7 @@ export function Tools() {
     [editor],
   )
 
+  // uncomment to see what tool IDs already exist
   // useEffect(() => console.log(currentToolId), [currentToolId])
 
   return (

@@ -1,4 +1,3 @@
-import '../styles.css'
 import { StateProvider } from './StateContext'
 import { HandwritingPlugin } from './HandwritingPlugin'
 import { gsap } from 'gsap'

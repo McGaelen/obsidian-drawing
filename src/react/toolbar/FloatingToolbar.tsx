@@ -12,27 +12,27 @@ export function FloatingToolbar() {
   } else {
     return createPortal(
       <div
+        className="w-fit h-[50px] absolute z-[999999] bg-(--background-secondary) touch-none"
+        style={{
+          // borderRadius: '50px',
+          // padding: '15px 25px',
+          boxShadow: 'rgba(0, 0, 0, 0.5) 0px 6px 20px',
+        }}
         ref={div => {
           const draggable = new Draggable(div, {
             type: 'x,y',
             inertia: true,
             bounds: cmEditor,
             minimumMovement: 10,
+            liveSnap: true,
+            snap: {
+              x: val => val,
+              y: val => val,
+            },
           })
           return () => {
             draggable.kill()
           }
-        }}
-        style={{
-          width: 'fit-content',
-          height: '100px',
-          // borderRadius: '50px',
-          // padding: '15px 25px',
-          position: 'absolute',
-          zIndex: 999999,
-          backgroundColor: 'var(--background-secondary)',
-          boxShadow: 'rgba(0, 0, 0, 0.5) 0px 6px 20px',
-          touchAction: 'none',
         }}
       >
         <Tools />
