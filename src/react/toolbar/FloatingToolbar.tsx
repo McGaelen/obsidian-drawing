@@ -2,11 +2,12 @@ import { useMarkdownViewRect } from '../hooks/useMarkdownViewRect'
 import { createPortal } from 'react-dom'
 import { Tools } from './Tools'
 import { Draggable } from 'gsap/Draggable'
+import { PropsWithChildren } from 'react'
 
-export function FloatingToolbar() {
+export function FloatingToolbar({ children }: PropsWithChildren) {
   const mdRect = useMarkdownViewRect()
   const cmEditor = document.querySelector('.cm-editor')
-
+  console.log('floating toolbar')
   if (!mdRect || !cmEditor) {
     return <></>
   } else {
@@ -14,8 +15,6 @@ export function FloatingToolbar() {
       <div
         className="w-fit h-[50px] absolute z-[999999] bg-(--background-secondary) touch-none"
         style={{
-          // borderRadius: '50px',
-          // padding: '15px 25px',
           boxShadow: 'rgba(0, 0, 0, 0.5) 0px 6px 20px',
         }}
         ref={div => {
@@ -24,7 +23,6 @@ export function FloatingToolbar() {
             inertia: true,
             bounds: cmEditor,
             minimumMovement: 10,
-            liveSnap: true,
             snap: {
               x: val => val,
               y: val => val,
@@ -35,7 +33,8 @@ export function FloatingToolbar() {
           }
         }}
       >
-        <Tools />
+        {/*<Tools />*/}
+        {children}
       </div>,
       cmEditor,
     )

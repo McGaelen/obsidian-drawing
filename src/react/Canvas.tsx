@@ -1,7 +1,13 @@
 import { SetDarkMode } from './SetDarkMode'
 import { SetCameraOptions } from './SetCameraOptions'
 import { SaveOnChange } from './SaveOnChange'
-import { type Editor, type TLComponents, Tldraw } from 'tldraw'
+import {
+  DefaultToolbar,
+  DefaultToolbarContent,
+  type Editor,
+  type TLComponents,
+  Tldraw,
+} from 'tldraw'
 import { createContext, useContext, useRef, useState } from 'react'
 import { StateContext } from './StateContext'
 import { Background } from './Background'
@@ -20,6 +26,16 @@ export function Canvas() {
   const components: TLComponents = {
     Background,
     Canvas: TouchEventBlocker,
+    Toolbar: props => {
+      console.log('hello')
+      return (
+        <FloatingToolbar>
+          <DefaultToolbar {...props}>
+            <DefaultToolbarContent />
+          </DefaultToolbar>
+        </FloatingToolbar>
+      )
+    },
   }
 
   return (
@@ -27,7 +43,7 @@ export function Canvas() {
       <Tldraw
         snapshot={snapshot}
         components={components}
-        hideUi
+        // hideUi
         onMount={editor => {
           setEditor(editor)
           editor.user.updateUserPreferences({ edgeScrollSpeed: 0 })
