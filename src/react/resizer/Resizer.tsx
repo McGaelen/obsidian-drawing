@@ -1,7 +1,7 @@
 import { useContext } from 'react'
 import { Platform } from 'obsidian'
 import { Draggable } from 'gsap/Draggable'
-import { StateManagerContext } from './StateManagerContext'
+import { StateManagerContext } from '../contexts/StateManagerContext'
 
 export function Resizer() {
   const stateManager = useContext(StateManagerContext)

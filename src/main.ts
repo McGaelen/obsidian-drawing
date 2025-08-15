@@ -20,7 +20,6 @@ export default class HandwritingPlugin extends Plugin {
 
         const file = this.app.vault.getAbstractFileByPath(source)
 
-        // TODO: dont do this terrible hackiness, its disgusting
         if (file instanceof TFile) {
           const contents = await this.app.vault.read(file)
           reactRoot.render(

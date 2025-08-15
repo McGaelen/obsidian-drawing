@@ -1,5 +1,5 @@
 import { createContext, PropsWithChildren } from 'react'
-import { HandwritingStateManager } from '../HandwritingStateManager'
+import { HandwritingStateManager } from '../../HandwritingStateManager'
 
 // All serializable state goes here
 export const StateManagerContext = createContext({} as HandwritingStateManager)

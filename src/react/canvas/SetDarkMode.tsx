@@ -1,6 +1,6 @@
 import { type Editor, useEditor } from 'tldraw'
 import { useEffect } from 'react'
-import { fromMutationObserver } from '../utils/fromMutationObserver'
+import { fromMutationObserver } from '../../utils/fromMutationObserver'
 
 export function SetDarkMode() {
   const editor = useEditor()

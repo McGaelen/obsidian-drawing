@@ -1,7 +1,7 @@
 import { useEditor } from 'tldraw'
 import { useContext, useEffect } from 'react'
 import { debounceTime, fromEventPattern, merge } from 'rxjs'
-import { StateManagerContext } from './StateManagerContext'
+import { StateManagerContext } from '../contexts/StateManagerContext'
 
 export function SaveOnChange() {
   const stateManager = useContext(StateManagerContext)
