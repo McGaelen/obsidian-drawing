@@ -9,6 +9,7 @@ import {
 import { HandwritingRenderChild } from './HandwritingRenderChild'
 import { createRoot } from 'react-dom/client'
 import { App } from './react/App'
+import { HandwritingStateManager } from './HandwritingStateManager'
 
 export default class HandwritingPlugin extends Plugin {
   async onload() {
@@ -24,10 +25,11 @@ export default class HandwritingPlugin extends Plugin {
           const contents = await this.app.vault.read(file)
           reactRoot.render(
             App({
-              initialState: JSON.parse(contents),
-              onStateChange: state => {
-                this.app.vault.modify(file, JSON.stringify(state))
-              },
+              stateManager: new HandwritingStateManager(
+                this.app,
+                file,
+                JSON.parse(contents),
+              ),
             }),
           )
 

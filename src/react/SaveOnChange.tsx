@@ -1,10 +1,10 @@
 import { useEditor } from 'tldraw'
-import { DispatchContext } from './StateContext'
 import { useContext, useEffect } from 'react'
 import { debounceTime, fromEventPattern, merge } from 'rxjs'
+import { StateManagerContext } from './StateManagerContext'
 
 export function SaveOnChange() {
-  const dispatch = useContext(DispatchContext)
+  const stateManager = useContext(StateManagerContext)
   const editor = useEditor()
 
   useEffect(() => {
@@ -19,7 +19,9 @@ export function SaveOnChange() {
     const sub = merge(onChange, onDelete)
       .pipe(debounceTime(100))
       .subscribe(() => {
-        dispatch({ type: 'set-snapshot', snapshot: editor.getSnapshot() })
+        stateManager.update(state => {
+          state.snapshot = editor.getSnapshot()
+        })
       })
 
     return () => sub.unsubscribe()

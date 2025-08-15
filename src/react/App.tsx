@@ -1,15 +1,20 @@
-import { StateProvider } from './StateContext'
+import { StateManagerProvider } from './StateManagerContext'
 import { HandwritingPlugin } from './HandwritingPlugin'
 import { gsap } from 'gsap'
 import { Draggable } from 'gsap/Draggable'
 import { InertiaPlugin } from 'gsap/InertiaPlugin'
+import { HandwritingStateManager } from '../HandwritingStateManager'
 
 gsap.registerPlugin(Draggable, InertiaPlugin)
 
-export function App({ initialState, onStateChange }: HandwritingRootProps) {
+export function App({
+  stateManager,
+}: {
+  stateManager: HandwritingStateManager
+}) {
   return (
-    <StateProvider initialState={initialState} onStateChange={onStateChange}>
+    <StateManagerProvider stateManager={stateManager}>
       <HandwritingPlugin />
-    </StateProvider>
+    </StateManagerProvider>
   )
 }

@@ -8,26 +8,21 @@ import {
   type TLComponents,
   Tldraw,
 } from 'tldraw'
-import { createContext, useContext, useRef, useState } from 'react'
-import { StateContext } from './StateContext'
+import { createContext, useContext } from 'react'
 import { Background } from './Background'
 import { TouchEventBlocker } from './TouchEventBlocker'
 import { FloatingToolbar } from './toolbar/FloatingToolbar'
+import { StateManagerContext } from './StateManagerContext'
 
 export const EditorContext = createContext({} as Editor)
 
 export function Canvas() {
-  const {
-    current: { snapshot },
-  } = useRef(useContext(StateContext))
-
-  const [editor, setEditor] = useState<Editor | null>(null)
+  const stateManager = useContext(StateManagerContext)
 
   const components: TLComponents = {
     Background,
     Canvas: TouchEventBlocker,
     Toolbar: props => {
-      console.log('hello')
       return (
         <FloatingToolbar>
           <DefaultToolbar {...props}>
@@ -41,11 +36,9 @@ export function Canvas() {
   return (
     <>
       <Tldraw
-        snapshot={snapshot}
+        snapshot={stateManager.current.snapshot}
         components={components}
-        // hideUi
         onMount={editor => {
-          setEditor(editor)
           editor.user.updateUserPreferences({ edgeScrollSpeed: 0 })
         }}
       >
@@ -53,11 +46,6 @@ export function Canvas() {
         <SetCameraOptions />
         <SaveOnChange />
       </Tldraw>
-      {editor && (
-        <EditorContext.Provider value={editor}>
-          <FloatingToolbar />
-        </EditorContext.Provider>
-      )}
     </>
   )
 }

@@ -1,10 +1,10 @@
 import { type ReactNode, useContext } from 'react'
-import { StateContext } from './StateContext'
 import { useMarkdownViewRect } from './hooks/useMarkdownViewRect'
+import { StateManagerContext } from './StateManagerContext'
 
 export function CanvasContainer({ children }: { children: ReactNode }) {
   let rect = useMarkdownViewRect()
-  let { height } = useContext(StateContext)
+  let stateManager = useContext(StateManagerContext)
 
   if (!rect) {
     return <></>
@@ -14,7 +14,7 @@ export function CanvasContainer({ children }: { children: ReactNode }) {
     <div
       style={{
         position: 'relative',
-        height: `${height}px`,
+        height: `${stateManager.current.height}px`,
         width: `${rect.width}px`,
         left: '50%',
         translate: '-50%',

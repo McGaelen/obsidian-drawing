@@ -5,33 +5,9 @@ declare global {
   interface HandwritingState {
     height: number
     snapshot?: TLEditorSnapshot
+    floatingToolbar: {
+      x: number
+      y: number
+    }
   }
-
-  /** =========== Props =========== */
-  interface HandwritingRootProps {
-    initialState: HandwritingState
-    onStateChange: OnStateChangeHandler
-  }
-
-  interface StateProviderProps {
-    initialState: HandwritingState
-    onStateChange: OnStateChangeHandler
-    children: ReactNode
-  }
-
-  /** =========== Actions =========== */
-  interface ChangeHeightAction {
-    type: 'change-height'
-    amount: number
-  }
-
-  interface SetSnapshotAction {
-    type: 'set-snapshot'
-    snapshot: TLEditorSnapshot
-  }
-
-  type HandwritingAction = ChangeHeightAction | SetSnapshotAction
-
-  /** =========== Other =========== */
-  type OnStateChangeHandler = (state: HandwritingState) => void
 }

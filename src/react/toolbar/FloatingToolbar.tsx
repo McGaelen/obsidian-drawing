@@ -1,13 +1,17 @@
 import { useMarkdownViewRect } from '../hooks/useMarkdownViewRect'
 import { createPortal } from 'react-dom'
-import { Tools } from './Tools'
 import { Draggable } from 'gsap/Draggable'
-import { PropsWithChildren } from 'react'
+import { gsap } from 'gsap'
+import { PropsWithChildren, useContext } from 'react'
+import { StateManagerContext } from '../StateManagerContext'
 
 export function FloatingToolbar({ children }: PropsWithChildren) {
+  const stateManager = useContext(StateManagerContext)
   const mdRect = useMarkdownViewRect()
   const cmEditor = document.querySelector('.cm-editor')
-  console.log('floating toolbar')
+
+  console.log(stateManager.current.floatingToolbar)
+
   if (!mdRect || !cmEditor) {
     return <></>
   } else {
@@ -18,14 +22,22 @@ export function FloatingToolbar({ children }: PropsWithChildren) {
           boxShadow: 'rgba(0, 0, 0, 0.5) 0px 6px 20px',
         }}
         ref={div => {
+          gsap.set(div, {
+            x: stateManager.current.floatingToolbar.x,
+            y: stateManager.current.floatingToolbar.y,
+          })
           const draggable = new Draggable(div, {
             type: 'x,y',
             inertia: true,
             bounds: cmEditor,
             minimumMovement: 10,
-            snap: {
-              x: val => val,
-              y: val => val,
+            onThrowComplete() {
+              stateManager.update(state => {
+                state.floatingToolbar = {
+                  x: draggable.x,
+                  y: draggable.y,
+                }
+              })
             },
           })
           return () => {
@@ -33,7 +45,6 @@ export function FloatingToolbar({ children }: PropsWithChildren) {
           }
         }}
       >
-        {/*<Tools />*/}
         {children}
       </div>,
       cmEditor,

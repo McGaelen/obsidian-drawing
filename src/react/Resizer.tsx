@@ -1,19 +1,18 @@
 import { useContext } from 'react'
 import { Platform } from 'obsidian'
-import { DispatchContext } from './StateContext'
 import { Draggable } from 'gsap/Draggable'
+import { StateManagerContext } from './StateManagerContext'
 
 export function Resizer() {
-  const dispatch = useContext(DispatchContext)
+  const stateManager = useContext(StateManagerContext)
 
   function setupDraggable(div: HTMLDivElement): () => void {
     const draggable = new Draggable(div, {
       type: 'top',
 
       onDrag() {
-        dispatch({
-          type: 'change-height',
-          amount: draggable.deltaY,
+        stateManager.update(state => {
+          state.height += draggable.deltaY
         })
       },
     })

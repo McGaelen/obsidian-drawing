@@ -27,6 +27,7 @@
     "esbuild-plugin-copy": "^2.1.1",
     "glob": "^10.3.0",
     "gsap": "^3.13.0",
+    "immer": "^10.1.1",
     "lodash-es": "^4.17.21",
     "lucide-react": "^0.537.0",
     "obsidian": "latest",
