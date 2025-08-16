@@ -10,6 +10,11 @@ import { HandwritingRenderChild } from './HandwritingRenderChild'
 import { createRoot } from 'react-dom/client'
 import { App } from './react/App'
 import { HandwritingStateManager } from './HandwritingStateManager'
+import { gsap } from 'gsap'
+import { Draggable } from 'gsap/Draggable'
+import { InertiaPlugin } from 'gsap/InertiaPlugin'
+
+gsap.registerPlugin(Draggable, InertiaPlugin)
 
 export default class HandwritingPlugin extends Plugin {
   async onload() {
