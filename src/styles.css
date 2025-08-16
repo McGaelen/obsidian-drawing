@@ -13,6 +13,7 @@ If your plugin does not need CSS, delete this file.
 /* ============ Obsidian Color Variables ============
   --interactive-accent: the user's accent color (obsidian purple)
   --background-primary: the background color in the editor (the darker gray)
+  --background-secondary: the background color in leaf panes (files/search panel)
   --background-modifier-hover: a slightly translucent filter over a hovered UI element
   --text-color: the color of text
   --divider-color: the color of dividers between leaves in the obsidian UI
@@ -60,7 +61,9 @@ If your plugin does not need CSS, delete this file.
 * {
   --color-low: var(--background-primary);
   --tl-color-selected: var(--interactive-accent);
-  --color-selected-contrast: var(--interactive-accent);
+  --color-selected: var(--interactive-accent);
+  --color-selected-contrast: var(--text-color);
+  --color-panel: var(--background-secondary);
 }
 
 input,
