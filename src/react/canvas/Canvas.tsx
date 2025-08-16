@@ -1,7 +1,7 @@
 import { SetDarkMode } from './SetDarkMode'
 import { SetCameraOptions } from './SetCameraOptions'
 import { SaveOnChange } from './SaveOnChange'
-import { type TLComponents, Tldraw } from 'tldraw'
+import { MobileStylePanel, type TLComponents, Tldraw } from 'tldraw'
 import { useContext } from 'react'
 import { Background } from './ui/Background'
 import { TouchEventBlocker } from './ui/TouchEventBlocker'
@@ -15,15 +15,22 @@ export function Canvas() {
     Background,
     Canvas: TouchEventBlocker,
     Toolbar: FloatingToolbar,
+    ZoomMenu: null,
+    ZoomBrush: null,
+    Minimap: null,
+    PageMenu: null,
+    ActionsMenu: null,
+    MainMenu: null,
   }
 
   return (
     <Tldraw
       snapshot={stateManager.current.snapshot}
       components={components}
-      onMount={editor =>
-        editor.user.updateUserPreferences({ edgeScrollSpeed: 0 })
-      }
+      options={{
+        edgeScrollSpeed: 0,
+        actionShortcutsLocation: 'toolbar',
+      }}
     >
       <SetDarkMode />
       <SetCameraOptions />

@@ -4,11 +4,10 @@ import { Draggable } from 'gsap/Draggable'
 import { gsap } from 'gsap'
 import { useCallback, useContext, useRef } from 'react'
 import { StateManagerContext } from '../../contexts/StateManagerContext'
-import { DefaultToolbar, DefaultToolbarContent } from 'tldraw'
+import { DefaultToolbar, DefaultToolbarContent, MobileStylePanel } from 'tldraw'
 
 export function FloatingToolbar(props: {}) {
   const stateManager = useContext(StateManagerContext)
-  const mdRect = useMarkdownViewRect()
   const cmEditor = useRef(document.querySelector('.cm-editor'))
 
   const handleRef = useCallback((div: HTMLDivElement) => {
@@ -16,6 +15,7 @@ export function FloatingToolbar(props: {}) {
     gsap.set(div, {
       x: stateManager.current.floatingToolbar.x,
       y: stateManager.current.floatingToolbar.y,
+      z: 399,
     })
 
     const draggable = new Draggable(div, {
@@ -39,20 +39,13 @@ export function FloatingToolbar(props: {}) {
     }
   }, [])
 
-  if (!mdRect || !cmEditor.current) {
-    return <></>
-  } else {
-    return createPortal(
-      <div
-        ref={handleRef}
-        className="w-fit h-[50px] absolute z-[999999] bg-(--background-secondary) touch-none"
-        style={{ boxShadow: 'rgba(0, 0, 0, 0.5) 0px 6px 20px' }}
-      >
-        <DefaultToolbar {...props}>
-          <DefaultToolbarContent />
-        </DefaultToolbar>
-      </div>,
-      cmEditor.current,
-    )
-  }
+  return (
+    <div
+      ref={handleRef}
+      className="obsidian-handwriting-toolbar w-fit h-fit overflow-auto absolute bg-(--background-secondary) rounded-[11px] border border-(--divider-color)"
+      style={{ filter: 'drop-shadow(rgba(0, 0, 0, 0.5) 0px 6px 20px)' }}
+    >
+      <DefaultToolbar {...props} />
+    </div>
+  )
 }

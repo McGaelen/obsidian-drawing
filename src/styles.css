@@ -10,6 +10,14 @@ If your plugin does not need CSS, delete this file.
 @import 'tailwindcss';
 @import 'tldraw/tldraw.css';
 
+/* ============ Obsidian Color Variables ============
+  --interactive-accent: the user's accent color (obsidian purple)
+  --background-primary: the background color in the editor (the darker gray)
+  --background-modifier-hover: a slightly translucent filter over a hovered UI element
+  --text-color: the color of text
+  --divider-color: the color of dividers between leaves in the obsidian UI
+*/
+
 /* ============ Obsidian Overrides ============ */
 .cm-preview-code-block.cm-embed-block.markdown-rendered:has(
     .block-language-drawing
@@ -26,9 +34,33 @@ If your plugin does not need CSS, delete this file.
   }
 }
 
+.block-language-drawing .tl-container {
+  button:not(.clickable-icon).tlui-button {
+    background-color: unset;
+    box-shadow: unset;
+  }
+
+  .tlui-toolbar {
+    padding:0;
+  }
+
+  .tlui-toolbar__extras {
+    top: 0;
+    height: unset;
+  }
+
+  .tlui-toolbar-container {
+    box-shadow: none;
+    border:0;
+    background-color: transparent;
+  }
+}
+
 /* ============ Tldraw Overrides ============ */
-:root {
+* {
   --color-low: var(--background-primary);
+  --tl-color-selected: var(--interactive-accent);
+  --color-selected-contrast: var(--interactive-accent);
 }
 
 input,
