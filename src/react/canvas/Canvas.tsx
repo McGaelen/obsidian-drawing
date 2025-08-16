@@ -4,7 +4,7 @@ import { SaveOnChange } from './SaveOnChange'
 import { type TLComponents, Tldraw } from 'tldraw'
 import { useContext } from 'react'
 import { Background } from './ui/Background'
-import { TouchEventBlocker } from './ui/TouchEventBlocker'
+import { AllowDefaultScrollEvents } from './ui/AllowDefaultScrollEvents'
 import { FloatingToolbar } from './ui/FloatingToolbar'
 import { StateManagerContext } from '../contexts/StateManagerContext'
 import { CanvasSizer } from './CanvasSizer'
@@ -14,7 +14,7 @@ export function Canvas() {
 
   const components: TLComponents = {
     Background,
-    Canvas: TouchEventBlocker,
+    Canvas: AllowDefaultScrollEvents,
     Toolbar: FloatingToolbar,
     ZoomMenu: null,
     ZoomBrush: null,
