@@ -3,10 +3,6 @@ import { produce } from 'immer'
 
 const defaultState: HandwritingState = {
   height: 500,
-  floatingToolbar: {
-    x: 0,
-    y: 0,
-  },
 }
 
 export class HandwritingStateManager {

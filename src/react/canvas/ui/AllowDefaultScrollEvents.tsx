@@ -1,12 +1,28 @@
 import { DefaultCanvas } from 'tldraw'
+import { TouchEvent, useCallback } from 'react'
 
 export function AllowDefaultScrollEvents() {
+  // TODO: figure out why this has red squigglies
+  const handleTouchStartCapturePassive = (e: TouchEvent) => {
+    e.stopPropagation()
+  }
   return (
     <div
-      onWheelCapture={e => {
-        e.stopPropagation()
+      ref={div => {
+        // This needs to be set manually because
+        div!.addEventListener('touchstart', handleTouchStartCapturePassive, {
+          capture: true,
+          passive: false,
+        })
+        return () => {
+          div!.removeEventListener(
+            'touchstart',
+            handleTouchStartCapturePassive,
+            { capture: true, passive: false },
+          )
+        }
       }}
-      onTouchStartCapture={e => {
+      onWheelCapture={e => {
         e.stopPropagation()
       }}
       onPointerDownCapture={e => {

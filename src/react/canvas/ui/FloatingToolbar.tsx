@@ -1,6 +1,5 @@
 import { Draggable } from 'gsap/Draggable'
-import { useCallback, useContext, useRef } from 'react'
-import { StateManagerContext } from '../../contexts/StateManagerContext'
+import { useCallback, useContext, useRef, useState } from 'react'
 import {
   ArrowDownToolbarItem,
   ArrowLeftToolbarItem,
@@ -16,12 +15,12 @@ import {
   EllipseToolbarItem,
   EraserToolbarItem,
   FrameToolbarItem,
-  HandToolbarItem,
   HeartToolbarItem,
   HexagonToolbarItem,
   HighlightToolbarItem,
   LaserToolbarItem,
   LineToolbarItem,
+  MobileStylePanel,
   NoteToolbarItem,
   OvalToolbarItem,
   RectangleToolbarItem,
@@ -32,32 +31,29 @@ import {
   TriangleToolbarItem,
   XBoxToolbarItem,
 } from 'tldraw'
+import { CanvasSizerContext } from '../CanvasSizer'
 
 export function FloatingToolbar(props: {}) {
-  const stateManager = useContext(StateManagerContext)
-  const cmEditor = useRef(document.querySelector('.cm-editor'))
+  const sizerRef = useContext(CanvasSizerContext)
 
   const handleRef = useCallback((div: HTMLDivElement) => {
-    // set initial coordinates
-    // gsap.set(div, {
-    //   x: stateManager.current.floatingToolbar.x,
-    //   y: stateManager.current.floatingToolbar.y,
-    //   z: 399,
-    // })
-
     const draggable = new Draggable(div, {
-      type: 'x,y',
+      type: 'y',
       inertia: true,
-      bounds: cmEditor.current,
+      bounds: sizerRef.current,
       minimumMovement: 0,
-      // This fires when the inertia ends, not when the drag event ends
-      onThrowComplete() {
-        stateManager.update(state => {
-          state.floatingToolbar = {
-            x: draggable.x,
-            y: draggable.y,
+      snap: {
+        y: xVal => {
+          // TODO: use InFrontOfCanvas for this instead since theres some weird overlap with the CanvasSizer
+          const rect = sizerRef.current!.getBoundingClientRect()
+          const midpoint = rect.height / 2
+
+          if (Math.sign(xVal) === 1 || Math.abs(xVal) <= midpoint) {
+            return 0
+          } else {
+            return -rect.height + 40
           }
-        })
+        },
       },
     })
 
@@ -69,15 +65,16 @@ export function FloatingToolbar(props: {}) {
   return (
     <div
       ref={handleRef}
-      className="obsidian-handwriting-toolbar w-fit h-fit overflow-auto absolute bg-(--background-secondary) rounded-[11px] border border-(--divider-color)"
+      className="oh-toolbar w-fit h-fit overflow-auto absolute bg-(--background-secondary) rounded-[11px] border border-(--divider-color)"
       style={{
         filter: 'drop-shadow(rgba(0, 0, 0, 0.5) 0px 6px 20px)',
         pointerEvents: 'all',
       }}
     >
       <DefaultToolbar {...props}>
+        <MobileStylePanel />
         <SelectToolbarItem />
-        <HandToolbarItem />
+        {/*<HandToolbarItem />*/}
         <DrawToolbarItem />
         <EraserToolbarItem />
         <ArrowToolbarItem />

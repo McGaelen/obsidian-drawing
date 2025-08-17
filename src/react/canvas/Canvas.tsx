@@ -20,7 +20,6 @@ export function Canvas() {
     ZoomBrush: null,
     Minimap: null,
     PageMenu: null,
-    ActionsMenu: null,
     MainMenu: null,
   }
 
