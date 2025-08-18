@@ -1,22 +1,9 @@
-import {
-  createContext,
-  type ReactNode,
-  Ref,
-  RefObject,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
+import { type ReactNode, useContext, useEffect, useRef, useState } from 'react'
 import { useMarkdownViewRect } from '../hooks/useMarkdownViewRect'
 import { StateManagerContext } from '../contexts/StateManagerContext'
 import { Platform } from 'obsidian'
 import { clsx } from 'clsx'
 import { Draggable } from 'gsap/Draggable'
-
-export const CanvasSizerContext = createContext(
-  {} as RefObject<HTMLDivElement | null>,
-)
 
 export function CanvasSizer({ children }: { children: ReactNode }) {
   let rect = useMarkdownViewRect()
@@ -58,27 +45,25 @@ export function CanvasSizer({ children }: { children: ReactNode }) {
 
   return (
     <div ref={sizerRef} className="oh-canvas-sizer">
-      <CanvasSizerContext.Provider value={sizerRef}>
-        <div
-          className="oh-canvas-container relative pt-[10px] left-1/2"
-          style={{
-            height: `${height}px`,
-            width: `${rect.width}px`,
-            translate: '-50%',
-            contain: 'unset',
-          }}
-        >
-          {children}
-        </div>
-        <div
-          ref={setupDraggable}
-          className={clsx(
-            'oh-resizer transition-all h-[5px] bg-(--divider-color) rounded-(--radius-s) touch-none hover:bg-(--interactive-accent)',
-            { 'h-[15px]': Platform.isMobile || Platform.isMobileApp },
-          )}
-          style={{ transitionDuration: '200ms' }}
-        />
-      </CanvasSizerContext.Provider>
+      <div
+        className="oh-canvas-container relative pt-[10px] left-1/2"
+        style={{
+          height: `${height}px`,
+          width: `${rect.width - 12}px`,
+          translate: '-50%',
+          contain: 'unset',
+        }}
+      >
+        {children}
+      </div>
+      <div
+        ref={setupDraggable}
+        className={clsx(
+          'oh-resizer transition-all h-[5px] bg-(--divider-color) rounded-(--radius-s) touch-none hover:bg-(--interactive-accent)',
+          { 'h-[15px]': Platform.isMobile || Platform.isMobileApp },
+        )}
+        style={{ transitionDuration: '200ms' }}
+      />
     </div>
   )
 }

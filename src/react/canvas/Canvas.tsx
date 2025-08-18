@@ -15,7 +15,8 @@ export function Canvas() {
   const components: TLComponents = {
     Background,
     Canvas: AllowDefaultScrollEvents,
-    Toolbar: FloatingToolbar,
+    InFrontOfTheCanvas: FloatingToolbar,
+    Toolbar: null,
     ZoomMenu: null,
     ZoomBrush: null,
     Minimap: null,
