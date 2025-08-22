@@ -33,6 +33,8 @@ import {
 } from 'tldraw'
 import { gsap } from 'gsap'
 import { useGSAP } from '@gsap/react'
+import { Flip } from 'gsap/Flip'
+import { flushSync } from 'react-dom'
 
 const TOOLBAR_HEIGHT = 90
 
@@ -88,15 +90,51 @@ export function FloatingToolbar(props: {}) {
   useEffect(() => {
     const draggable = new Draggable(toolbarRef.current, {
       type: 'y',
-      // inertia: true,
+      inertia: true,
       bounds: containerRef.current,
       minimumMovement: 0,
       onDragStart() {
         setDragging(true)
       },
-      onDragEnd() {
-        setDragging(false)
+      snap: {
+        y: y => {
+          setDragging(false)
 
+          const isFromTop = Math.sign(y) > 0
+
+          // Since origin is top-left, we need to calculate the center of the toolbar
+          const toolbarMidpoint = isFromTop
+            ? y + TOOLBAR_HEIGHT / 2
+            : Math.abs(y) + TOOLBAR_HEIGHT / 2
+          const topAnchorMidpoint = getTopAnchorMidpoint()
+          const bottomAnchorMidpoint = getBottomAnchorMidpoint()
+          const actualMidpoint = (bottomAnchorMidpoint - topAnchorMidpoint) / 2
+          // console.log({ toolbarMidpoint, actualMidpoint })
+
+          if (isFromTop) {
+            if (toolbarMidpoint < actualMidpoint) {
+              return 0
+            } else {
+              return (
+                bottomAnchorRef.current!.getBoundingClientRect().top -
+                topAnchorRef.current!.getBoundingClientRect().top
+              )
+            }
+          } else {
+            if (toolbarMidpoint > actualMidpoint) {
+              // Note the negative number
+              return (
+                -1 *
+                (bottomAnchorRef.current!.getBoundingClientRect().top -
+                  topAnchorRef.current!.getBoundingClientRect().top)
+              )
+            } else {
+              return 0
+            }
+          }
+        },
+      },
+      onThrowComplete() {
         const isFromTop = Math.sign(draggable.y) > 0
 
         // Since origin is top-left, we need to calculate the center of the toolbar
@@ -108,38 +146,26 @@ export function FloatingToolbar(props: {}) {
         const actualMidpoint = (bottomAnchorMidpoint - topAnchorMidpoint) / 2
         // console.log({ toolbarMidpoint, actualMidpoint })
 
-        if (isFromTop) {
-          if (toolbarMidpoint < actualMidpoint) {
-            setSnapPosition('top')
-          } else {
-            setSnapPosition('bottom')
-          }
-        } else {
-          if (toolbarMidpoint > actualMidpoint) {
-            setSnapPosition('top')
-          } else {
-            setSnapPosition('bottom')
-          }
-        }
-        draggable.update(false)
         gsap.set(toolbarRef.current, { y: 0 })
+
+        flushSync(() => {
+          if (isFromTop) {
+            if (toolbarMidpoint < actualMidpoint) {
+              setSnapPosition('top')
+            } else {
+              setSnapPosition('bottom')
+            }
+          } else {
+            if (toolbarMidpoint > actualMidpoint) {
+              setSnapPosition('top')
+            } else {
+              setSnapPosition('bottom')
+            }
+          }
+        })
+
+        draggable.update(false)
       },
-      // snap: {
-      //   y: y => {
-      //     // Since origin is top-left, we need to calculate the center of the toolbar
-      //     const y_at_center = y + TOOLBAR_HEIGHT / 2
-      //
-      //     // Then get the midpoint of the entire container div (in front of the entire canvas)
-      //     const rect = containerRef.current!.getBoundingClientRect()
-      //     const midpoint = rect.height / 2
-      //
-      //     if (y_at_center < midpoint) {
-      //       return topAnchorRef.current!.clientTop // Snap to top
-      //     } else {
-      //       return bottomAnchorRef.current!.clientTop // Snap to bottom, accounting for the height of the toolbar
-      //     }
-      //   },
-      // },
     })
 
     return () => {
