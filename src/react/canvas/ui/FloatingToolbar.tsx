@@ -42,7 +42,7 @@ export function FloatingToolbar(props: {}) {
   const topAnchorRef = useRef<HTMLDivElement | null>(null)
   const bottomAnchorRef = useRef<HTMLDivElement | null>(null)
 
-  const [snapPosition, setSnapPosition] = useState<'top' | 'bottom'>('top')
+  const [snapPosition, setSnapPosition] = useState<'top' | 'bottom'>('bottom')
   const [isDragging, setDragging] = useState(false)
 
   useGSAP(
@@ -75,44 +75,55 @@ export function FloatingToolbar(props: {}) {
     }
   }, [snapPosition])
 
+  function getTopAnchorMidpoint(): number {
+    const rect = topAnchorRef.current!.getBoundingClientRect()
+    return rect.height / 2
+  }
+
+  function getBottomAnchorMidpoint(): number {
+    const rect = bottomAnchorRef.current!.getBoundingClientRect()
+    return rect.top + rect.height / 2
+  }
+
   useEffect(() => {
     const draggable = new Draggable(toolbarRef.current, {
       type: 'y',
       // inertia: true,
       bounds: containerRef.current,
       minimumMovement: 0,
-      onDragStart: () => {
-        // console.log(toolbarRef.current?.offsetTop)
-        // gsap.set(toolbarRef.current, { top: toolbarRef.current!.offsetTop })
-        // draggable.update(false)
+      onDragStart() {
         setDragging(true)
       },
       onDragEnd() {
         setDragging(false)
-        // const flipState = Flip.getState(toolbarRef.current)
+
+        const isFromTop = Math.sign(draggable.y) > 0
 
         // Since origin is top-left, we need to calculate the center of the toolbar
-        const y_at_center = draggable.y + TOOLBAR_HEIGHT / 2
+        const toolbarMidpoint = isFromTop
+          ? draggable.y + TOOLBAR_HEIGHT / 2
+          : Math.abs(draggable.y) + TOOLBAR_HEIGHT / 2
+        const topAnchorMidpoint = getTopAnchorMidpoint()
+        const bottomAnchorMidpoint = getBottomAnchorMidpoint()
+        const actualMidpoint = (bottomAnchorMidpoint - topAnchorMidpoint) / 2
+        // console.log({ toolbarMidpoint, actualMidpoint })
 
-        // Then get the midpoint of the entire container div (in front of the entire canvas)
-        const rect = containerRef.current!.getBoundingClientRect()
-        const midpoint = rect.height / 2
-
-        if (y_at_center < midpoint) {
-          setSnapPosition('top')
-          // gsap.to(toolbarRef.current, { top: 0 })
-          // return 0 // Snap to top
+        if (isFromTop) {
+          if (toolbarMidpoint < actualMidpoint) {
+            setSnapPosition('top')
+          } else {
+            setSnapPosition('bottom')
+          }
         } else {
-          setSnapPosition('bottom')
-          // gsap.to(toolbarRef.current, { top: rect.height - TOOLBAR_HEIGHT })
-          // return rect.height - TOOLBAR_HEIGHT // Snap to bottom, accounting for the height of the toolbar
+          if (toolbarMidpoint > actualMidpoint) {
+            setSnapPosition('top')
+          } else {
+            setSnapPosition('bottom')
+          }
         }
         draggable.update(false)
         gsap.set(toolbarRef.current, { y: 0 })
-
-        // Flip.from(flipState, { duration: 1, ease: 'power1.inOut' })
       },
-      onThrowComplete() {},
       // snap: {
       //   y: y => {
       //     // Since origin is top-left, we need to calculate the center of the toolbar
@@ -144,6 +155,12 @@ export function FloatingToolbar(props: {}) {
       <div
         ref={topAnchorRef}
         className="oh-floating-toolbar__top-anchor sticky top-0 w-full flex justify-center"
+        style={{ height: `${TOOLBAR_HEIGHT}px` }}
+      />
+
+      <div
+        ref={bottomAnchorRef}
+        className="oh-floating-toolbar__bottom-anchor sticky bottom-0 w-full flex justify-center"
         style={{ height: `${TOOLBAR_HEIGHT}px` }}
       >
         <div
@@ -194,12 +211,6 @@ export function FloatingToolbar(props: {}) {
           </DefaultToolbar>
         </div>
       </div>
-
-      <div
-        ref={bottomAnchorRef}
-        className="oh-floating-toolbar__bottom-anchor sticky bottom-0 w-full flex justify-center"
-        style={{ height: `${TOOLBAR_HEIGHT}px` }}
-      ></div>
     </div>
   )
 }

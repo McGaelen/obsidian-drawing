@@ -3,7 +3,7 @@ import { times } from 'lodash-es'
 export function LinedBackground() {
   return (
     <>
-      {times(20).map(n => (
+      {times(100).map(n => (
         <div
           key={n}
           style={{
